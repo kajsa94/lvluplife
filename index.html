@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>lvluplife</title>
+  <title>Lvluplife</title>
   <meta name="description" content="Lvluplife — start your journey." />
   <link rel="icon" href="favicon.png">
   <style>
@@ -11,59 +11,91 @@
       --bg: #ffffff;
       --fg: #0f1222;
       --muted: #6b7280;
-      --btn-bg: #111827;
       --btn-fg: #ffffff;
       --btn-radius: 14px;
       --shadow: 0 20px 50px rgba(0,0,0,.08);
     }
+
     * { box-sizing: border-box; }
+
     html, body { height: 100%; }
+
     body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  padding-top: 20vh; /* justera höjden här */
-}
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 20vh; /* flyttar upp allt */
+    }
+
     main {
       width: min(920px, 92vw);
       text-align: center;
       padding: 8vh 4vw;
     }
+
     h1 {
       font-size: clamp(36px, 6vw, 64px);
       letter-spacing: .3px;
       margin: 0 0 18px;
     }
+
     p.lead {
       font-size: clamp(16px, 2.8vw, 20px);
       color: var(--muted);
       margin: 0 0 36px;
     }
+
+    /* === KNAPP === */
     .cta {
       display: inline-block;
-      padding: 20px 40px;
+      padding: 28px 70px;
       border-radius: var(--btn-radius);
-      background: var(--btn-bg);
+      background: linear-gradient(135deg, #111827, #3b82f6, #ec4899);
+      background-size: 200% 200%;
       color: var(--btn-fg);
       font-weight: 700;
-      font-size: clamp(18px, 4.5vw, 24px);
+      font-size: clamp(22px, 5vw, 32px);
       text-decoration: none;
       box-shadow: var(--shadow);
-      transform: translateY(0);
       transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
       outline: none;
+      animation: pulse 2.5s infinite, gradientShift 6s ease infinite;
     }
-    .cta:focus-visible {
-      box-shadow: 0 0 0 4px rgba(59,130,246,.35), var(--shadow);
+
+    .cta:hover {
+      transform: scale(1.07);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.25);
+      opacity: 0.95;
     }
-    .cta:active { transform: translateY(1px); }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(17,24,39, 0.5); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(17,24,39, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(17,24,39, 0); }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Texten under knappen */
+    .hint {
+      margin-top: 18px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
     footer {
       position: fixed;
       left: 0; right: 0; bottom: 14px;
@@ -78,6 +110,7 @@
     <h1>Lvluplife</h1>
     <p class="lead">Small steps. Big change.</p>
     <a class="cta" href="#" aria-label="Start your journey">Start your journey</a>
+    <p class="hint">Your journey starts here...</p>
   </main>
   <footer>&copy; 2025 Lvluplife</footer>
 </body>
