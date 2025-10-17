@@ -6,7 +6,7 @@
   --text-size: 6rem;              /* rubrikstorlek */
   --text-color: #ffffff;          /* textfärg (och linjefärg) */
   --top-offset: 10vh;             /* avstånd från toppen */
-  --glow: 0px;                    /* text-glow (0px = av). Öka t.ex. till 18px vid behov */
+  --glow: 5px;                    /* text-glow (0px = av). Öka t.ex. till 18px vid behov */
   --line-width: 240px;            /* linjens längd */
   --line-height: 2px;             /* linjens tjocklek */
   --line-gap: 12px;               /* avstånd mellan rubrik och linje */
