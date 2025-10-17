@@ -3,36 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lvluplife – Start</title>
+  <title>Lvluplife – Start (Dreamy Whisper)</title>
 
   <style>
     /* =========================================================
-       (1) KONTROLLPANEL – ändra utseende, färger & avstånd här
+       (1) KONTROLLPANEL – ändra färger, tider & känsla här
        ========================================================= */
     :root{
-      /* Färger */
+      /* Bas */
       --bg: #0a0a0a;
       --fg: #ffffff;
-      --title-glow: rgba(0,255,200,.5);
-      --accent: rgba(255,255,255,.3); /* färg för strecket */
 
-      /* Rubrik */
+      /* Rubrik + layout */
+      --title-glow: rgba(0,255,200,.4);
       --title-size-min: 2.5rem;
       --title-size-fluid: 8vw;
       --title-size-max: 6rem;
-      --title-bottom-gap: 18px;        /* avstånd rubrik → streck */
+      --title-bottom-gap: 18px;
 
       /* Streck */
+      --accent: rgba(255,255,255,.35);
       --divider-width: 300px;
       --divider-height: 2px;
-      --divider-opacity: .5;
-      --divider-bottom-gap: 16px;      /* avstånd streck → subtext */
+      --divider-opacity: .55;
+      --divider-bottom-gap: 16px;
 
       /* Subtext */
       --subtext-size: 1rem;
-      --subtext-opacity: .6;
+      --subtext-opacity: .65;
       --subtext-letterspace: .05em;
-      --subtext-bottom-gap: 28px;      /* avstånd subtext → knapp */
+      --subtext-bottom-gap: 28px;
 
       /* Knapp */
       --btn-text: #ffffff;
@@ -45,28 +45,38 @@
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      /* Hint (under knappen) */
+      /* Hint */
       --hint-size: .95rem;
       --hint-opacity: .6;
       --hint-top-gap: 16px;
 
-      /* Portal-effekt */
-      --portal-cyan: rgba(0,255,255,.15);
-      --fade-duration: 0.50s;  /* lite längre fade för smoothness */
-      --flash-duration: 1.20s; /* SYNKAS även från JS automatiskt */
+      /* ============ DRÖMMIG PORTAL (på klick) ============ */
+      /* Längder & timingar */
+      --dream-total-ms: 1600;               /* total sekvenslängd (ms) */
+      --show-delay-frac: 0.28;              /* när viskningstexten börjar (andel av total) */
+      --hide-before-end-ms: 460;            /* börja tona ut text så många ms före slut */
 
-      /* Mellantext i portalen */
-      --interstitial-text: "TEST";
-      --interstitial-size: clamp(18px, 3.2vw, 28px);
-      --interstitial-color: rgba(0,0,0,0.85);
-      --interstitial-weight: 800;
-      --interstitial-letter: .02em;
+      /* Dimtintar (varma, mjuka) */
+      --mist1: rgba(255,255,250,0.85);
+      --mist2: rgba(245,255,250,0.55);
+      --mist3: rgba(255,245,255,0.32);
 
-      /* Lugnare/lenare animationer */
-      --text-in-duration: 600ms;
-      --text-out-duration: 500ms;
-      --interstitial-lift-in: 6px;     /* hur långt texten glider in */
-      --interstitial-lift-out: -4px;   /* hur långt texten glider ut */
+      /* Rörelse/easing */
+      --mist-ease: cubic-bezier(.22,.55,.1,1); /* krämig easing */
+      --mist-blur: 18px;                       /* grund-blur för dimman */
+
+      /* Viskningstext */
+      --whisper-text: "Do you have what it takes?";
+      --whisper-size: clamp(18px, 3.2vw, 28px);
+      --whisper-color: rgba(0,0,0,0.75);   /* låg kontrast mot ljus dimma */
+      --whisper-weight: 600;
+      --whisper-letter: .08em;
+      --whisper-in-ms: 900;                /* långsamt in */
+      --whisper-out-ms: 560;               /* mjukt ut */
+      --whisper-char-translate: 8px;       /* hur långt varje bokstav glider */
+      --char-stagger-min: 18;              /* ms, min */
+      --char-stagger-max: 65;              /* ms, max */
+      --whisper-breath-amp: .12;           /* “andning” i opacity (0–1) */
     }
 
     /* =========================================================
@@ -85,7 +95,7 @@
     main{ width:min(920px,92vw); text-align:center; }
 
     /* =========================================================
-       (3) RUBRIK + STRECK
+       (3) RUBRIK + STRECK + SUBTEXT
        ========================================================= */
     h1{
       font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
@@ -95,7 +105,6 @@
       margin-bottom: var(--title-bottom-gap);
       text-shadow: 0 0 25px var(--title-glow);
     }
-
     .divider{
       width: var(--divider-width);
       height: var(--divider-height);
@@ -104,20 +113,15 @@
       border-radius: 1px;
       opacity: var(--divider-opacity);
     }
-
-    /* =========================================================
-       (4) SUBTEXT
-       ========================================================= */
     .subtext{
       font-size: var(--subtext-size);
       opacity: var(--subtext-opacity);
       letter-spacing: var(--subtext-letterspace);
-      color: var(--fg);
       margin-bottom: var(--subtext-bottom-gap);
     }
 
     /* =========================================================
-       (5) KNAPP
+       (4) KNAPP + HINT
        ========================================================= */
     .start-btn{
       display:inline-block;
@@ -133,20 +137,15 @@
       font-size: var(--btn-fontsize);
       box-shadow: var(--btn-shadow);
       transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
-      will-change: transform, box-shadow, filter;
       text-decoration:none;
       z-index:2;
     }
-    .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
-    .start-btn:active{ transform: scale(.98) }
+    .start-btn:hover{ transform: scale(1.05); filter:saturate(1.05) }
+    .start-btn:active{ transform: scale(.985) }
     .start-btn:focus-visible{
       outline: 2px solid rgba(0,255,200,.6);
       outline-offset: 3px;
     }
-
-    /* =========================================================
-       (6) HINT under knappen
-       ========================================================= */
     .hint{
       margin-top: var(--hint-top-gap);
       font-size: var(--hint-size);
@@ -155,69 +154,102 @@
     }
 
     /* =========================================================
-       (7) PORTAL-OVERLAYS (Safari-vänlig flash)
+       (5) DRÖMMIG OVERLAY + VISKNING
        ========================================================= */
-    .fade-overlay, .flash-overlay{
-      position:fixed; inset:0; z-index:5; pointer-events:none; opacity:0;
-      will-change: opacity, transform, clip-path;
-      backface-visibility: hidden;
-      transform-origin: 50% 50%;
-    }
-    .fade-overlay{
-      background: radial-gradient(circle at 50% 50%,
-                  var(--portal-cyan) 0%,
-                  rgba(0,0,0,.85) 78%,
-                  rgba(0,0,0,.95) 100%);
-      transition: opacity var(--fade-duration) cubic-bezier(.25,.9,.3,1) .05s;
-    }
-    .fade-active{ opacity:1; }
-
-    .flash-overlay{
-      background: #ffffff;
-      clip-path: circle(8% at 50% 50%);
-      opacity: .01;
-    }
-    .flash-active{
-      animation: flashClip var(--flash-duration) cubic-bezier(.23,1,.32,1) forwards;
-    }
-    @keyframes flashClip{
-      0%   { clip-path: circle(8% at 50% 50%);  opacity: .01; transform: scale(.98); }
-      25%  { clip-path: circle(38% at 50% 50%); opacity: .55; transform: scale(1.02); }
-      60%  { clip-path: circle(90% at 50% 50%); opacity: .95; transform: scale(1.08); }
-      100% { clip-path: circle(140% at 50% 50%); opacity: 1;   transform: scale(1.10); }
-    }
-
-    /* =========================================================
-       (8) PORTAL-MELLANTEXT (centrerad över allt)
-       ========================================================= */
-    .portal-text{
-      position: fixed; inset: 0; z-index: 6; pointer-events: none;
+    .dream-overlay{
+      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
       display: grid; place-items: center;
-      opacity: 0;
-      transform: translateY(var(--interstitial-lift-in));
-      transition:
-        opacity var(--text-in-duration) cubic-bezier(.25,.8,.25,1),
-        transform var(--text-in-duration) cubic-bezier(.25,.8,.25,1);
-      mix-blend-mode: multiply;
-      padding: 0 16px;
-      text-align: center;
     }
-    .portal-text.show{
+
+    /* tre lager dimma för djup */
+    .mist{
+      position:absolute; inset: -15vh -15vw; /* större än viewport för skala/translation */
+      filter: blur(var(--mist-blur));
+      opacity: 0;
+      transform: scale(.95);
+      mix-blend-mode: screen; /* mjuk ljusning mot mörk bakgrund */
+    }
+    .mist-1{
+      background:
+        radial-gradient(60vmax 60vmax at 40% 45%, var(--mist1) 0%, transparent 60%),
+        radial-gradient(40vmax 40vmax at 70% 60%, var(--mist2) 0%, transparent 70%);
+      animation: mistRise var(--dream-total-ms)ms var(--mist-ease) forwards,
+                 breathe calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+    }
+    .mist-2{
+      background:
+        radial-gradient(70vmax 70vmax at 60% 35%, var(--mist2) 0%, transparent 65%),
+        radial-gradient(50vmax 50vmax at 30% 65%, var(--mist3) 0%, transparent 75%);
+      animation: mistDrift var(--dream-total-ms)ms var(--mist-ease) forwards,
+                 breatheSlow calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+    }
+    .mist-3{
+      background:
+        radial-gradient(55vmax 55vmax at 50% 50%, var(--mist1) 0%, transparent 60%);
+      animation: mistPulse var(--dream-total-ms)ms var(--mist-ease) forwards,
+                 breathe calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+    }
+
+    @keyframes mistRise{
+      0%   { opacity: 0; transform: scale(.92) translateY(12px); }
+      40%  { opacity: .85; transform: scale(1.01) translateY(0px); }
+      100% { opacity: 0; transform: scale(1.05) translateY(-8px); }
+    }
+    @keyframes mistDrift{
+      0%   { opacity: 0; transform: scale(.94) translateX(-10px); }
+      35%  { opacity: .65; transform: scale(1.0) translateX(0); }
+      100% { opacity: 0; transform: scale(1.06) translateX(10px); }
+    }
+    @keyframes mistPulse{
+      0%   { opacity: 0; transform: scale(.9); }
+      50%  { opacity: .55; transform: scale(1.02); }
+      100% { opacity: 0; transform: scale(1.06); }
+    }
+    @keyframes breathe{
+      0%,100% { filter: blur(var(--mist-blur)); }
+      50%     { filter: blur(calc(var(--mist-blur) + 4px)); }
+    }
+    @keyframes breatheSlow{
+      0%,100% { opacity: .9; }
+      50%     { opacity: calc(.9 - var(--whisper-breath-amp)); }
+    }
+
+    /* viskningstext – låg kontrast, bokstavsvåg */
+    .whisper{
+      position: absolute; inset: 0; z-index: 9999;
+      display: grid; place-items: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--whisper-in-ms)ms var(--mist-ease);
+      padding: 0 16px; text-align: center;
+      mix-blend-mode: multiply;
+    }
+    .whisper.show{ opacity: 1; }
+    .whisper.hide{
+      opacity: 0;
+      transition: opacity var(--whisper-out-ms)ms var(--mist-ease);
+    }
+    .whisper .line{
+      font: var(--whisper-weight) var(--whisper-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: var(--whisper-letter);
+      color: var(--whisper-color);
+      white-space: pre-wrap;
+    }
+    .char{
+      display:inline-block;
+      opacity: 0;
+      transform: translateY(var(--whisper-char-translate));
+      filter: blur(2px);
+      transition: opacity .6s var(--mist-ease), transform .6s var(--mist-ease), filter .6s var(--mist-ease);
+    }
+    .char.on{
       opacity: 1;
       transform: translateY(0);
+      filter: blur(0px);
     }
-    .portal-text.hide{
-      opacity: 0;
-      transform: translateY(var(--interstitial-lift-out));
-      transition:
-        opacity var(--text-out-duration) cubic-bezier(.25,.8,.25,1),
-        transform var(--text-out-duration) cubic-bezier(.25,.8,.25,1);
-    }
-    .portal-text span{
-      font: var(--interstitial-weight) var(--interstitial-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      letter-spacing: var(--interstitial-letter);
-      color: var(--interstitial-color);
-      text-transform: none;
+
+    @media (prefers-reduced-motion: reduce){
+      .mist, .whisper, .char{ animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -227,113 +259,139 @@
     <h1>Lvluplife</h1>
     <div class="divider"></div>
 
-    <!-- SUBTEXT: mellan strecket och knappen -->
-    <p class="subtext">This is a tool for the one who needs extra HP</p>
+    <!-- SUBTEXT -->
+    <p class="subtext">This is a tool for the one who needs the extra HP</p>
 
     <!-- KNAPP -->
     <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
 
-    <!-- HINT under knappen (kan tas bort om du vill) -->
-    <p class="hint"></p>
+    <!-- HINT -->
+    <p class="hint">Do you have what it takes?</p>
   </main>
 
-  <!-- PORTAL-LAGER -->
-  <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
-  <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
-  <!-- MELLANTEXT-LAGER -->
-  <div class="portal-text" id="portalText" aria-hidden="true"><span></span></div>
+  <!-- DREAMY OVERLAY (skapas dynamiskt i JS vid klick) -->
 
-  <!-- SCRIPT – portal + back-knapp-fix + interstitial text (synkade tider) -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* =======================
-         Centrala tider (ändra bara här)
-         ======================= */
       const NEXT_URL = 'journey.html';
-      const NAV_DELAY_MS = 1200;     // total längd på sekvensen (matchar flash)
-      const SHOW_DELAY_FRACTION = 0.25;  // text visas efter 25% av tiden
-      const HIDE_BEFORE_END_MS   = 400;  // text börjar tona ut X ms före navigering
 
-      // Beräkna tider utifrån NAV_DELAY_MS
-      const SHOW_DELAY_MS = Math.round(NAV_DELAY_MS * SHOW_DELAY_FRACTION);
+      // Läs variabler från CSS
+      const css = getComputedStyle(document.documentElement);
+      const DREAM_TOTAL = +css.getPropertyValue('--dream-total-ms').trim() || 1600;
+      const SHOW_DELAY_FRAC = +css.getPropertyValue('--show-delay-frac').trim() || 0.28;
+      const HIDE_BEFORE_END = +css.getPropertyValue('--hide-before-end-ms').trim() || 460;
 
-      // Synka CSS-variabeln --flash-duration automatiskt
-      document.documentElement.style.setProperty('--flash-duration', (NAV_DELAY_MS/1000)+'s');
+      const SHOW_DELAY_MS = Math.round(DREAM_TOTAL * SHOW_DELAY_FRAC);
 
       const startBtn = document.getElementById('startBtn');
-      const fade = document.getElementById('fadeLayer');
-      const flash = document.getElementById('flashLayer');
-      const portalText = document.getElementById('portalText');
-      const portalTextSpan = portalText.querySelector('span');
 
       let clicked = false;
-      let navT1 = null, navT2 = null, textOutT = null, showT = null;
+      let timers = [];
 
-      function resetPortal(){
-        fade.classList.remove('fade-active');
-        flash.classList.remove('flash-active');
-        portalText.classList.remove('show','hide');
-      }
-      function resetState(){
-        clicked = false;
-        resetPortal();
-        if (navT1){ clearTimeout(navT1); navT1 = null; }
-        if (navT2){ clearTimeout(navT2); navT2 = null; }
-        if (textOutT){ clearTimeout(textOutT); textOutT = null; }
-        if (showT){ clearTimeout(showT); showT = null; }
+      function clearTimers(){
+        timers.forEach(t => clearTimeout(t));
+        timers = [];
       }
 
-      window.addEventListener('pageshow', resetState);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') resetState();
-      });
-
-      const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-      function getCSSVar(name){
-        const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        return val.replace(/^["']|["']$/g,'');
+      function makeOverlay(){
+        const wrap = document.createElement('div');
+        wrap.className = 'dream-overlay';
+        wrap.innerHTML = `
+          <div class="mist mist-1"></div>
+          <div class="mist mist-2"></div>
+          <div class="mist mist-3"></div>
+          <div class="whisper" aria-hidden="true"><div class="line"></div></div>
+        `;
+        document.body.appendChild(wrap);
+        return wrap;
       }
 
-      async function enterPortal(e){
+      function splitWhisper(lineEl, text){
+        lineEl.innerHTML = ''; // reset
+        const frag = document.createDocumentFragment();
+        for (const ch of text){
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = ch;
+          frag.appendChild(span);
+        }
+        lineEl.appendChild(frag);
+      }
+
+      function setWhisperText(wrap){
+        const whisper = wrap.querySelector('.whisper');
+        const line = whisper.querySelector('.line');
+        // hämta text från CSS-variabeln --whisper-text
+        let t = getComputedStyle(document.documentElement).getPropertyValue('--whisper-text').trim();
+        t = t.replace(/^["']|["']$/g,''); // ta bort citattecken
+        if(!t) t = 'Do you have what it takes?';
+        splitWhisper(line, t);
+        return whisper;
+      }
+
+      function staggerChars(whisper){
+        const chars = Array.from(whisper.querySelectorAll('.char'));
+        if (!chars.length) return;
+
+        // slumpa lätt inom ett intervall för att få organisk känsla
+        const css = getComputedStyle(document.documentElement);
+        const min = +css.getPropertyValue('--char-stagger-min').trim() || 18;
+        const max = +css.getPropertyValue('--char-stagger-max').trim() || 65;
+
+        let time = 0;
+        chars.forEach((span, i) => {
+          const jitter = Math.floor(min + Math.random() * (max - min));
+          time += jitter;
+          const t = setTimeout(() => span.classList.add('on'), time);
+          timers.push(t);
+        });
+      }
+
+      function enterDream(e){
         e.preventDefault();
         if (clicked) return;
         clicked = true;
 
-        // Sätt texten från CSS-variabeln (fallback om tom)
-        portalTextSpan.textContent = getCSSVar('--interstitial-text') || 'Do you have what it takes?';
+        // skapa overlay
+        const overlay = makeOverlay();
+        const whisper = setWhisperText(overlay);
 
-        resetPortal();
-        await nextFrame();
+        // visa whisper senare (drömmigt)
+        const showT = setTimeout(() => {
+          whisper.classList.add('show');
+          staggerChars(whisper);
+        }, SHOW_DELAY_MS);
+        timers.push(showT);
 
-        // 1) Starta glow/flash direkt
-        fade.classList.add('fade-active');
-        flash.classList.add('flash-active');
+        // tona ut whisper innan slut
+        const hideAt = Math.max(0, DREAM_TOTAL - HIDE_BEFORE_END);
+        const hideT = setTimeout(() => whisper.classList.add('hide'), hideAt);
+        timers.push(hideT);
 
-        // 2) Visa texten senare för dramatik
-        showT = setTimeout(() => portalText.classList.add('show'), SHOW_DELAY_MS);
+        // navigera när sekvensen är klar
+        const navT = setTimeout(() => { window.location.href = NEXT_URL; }, DREAM_TOTAL);
+        timers.push(navT);
 
-        // 3) Tona ut texten före navigering (mjuk exit)
-        const outWhen = Math.max(0, NAV_DELAY_MS - HIDE_BEFORE_END_MS);
-        textOutT = setTimeout(() => {
-          portalText.classList.add('hide');
-        }, outWhen);
-
-        // 4) Navigera när sekvensen är klar (matchar flash-duration)
-        navT1 = setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
-
-        // extra safety om något blockar
-        navT2 = setTimeout(() => {
-          if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
-        }, NAV_DELAY_MS + 500);
+        // safety – rensa overlay några hundradelar efter
+        const cleanupT = setTimeout(() => {
+          overlay.remove();
+          clearTimers();
+        }, DREAM_TOTAL + 200);
+        timers.push(cleanupT);
       }
 
-      startBtn.addEventListener('click', enterPortal);
+      startBtn.addEventListener('click', enterDream);
       startBtn.addEventListener('keydown', (e)=>{
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterPortal(e); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterDream(e); }
       });
+
+      window.addEventListener('pageshow', () => { clicked = false; clearTimers(); });
+
+      function getComputedNumber(varName, fallback){
+        const v = +css.getPropertyValue(varName).trim();
+        return Number.isFinite(v) ? v : fallback;
+      }
     });
   </script>
 </body>
 </html>
-
