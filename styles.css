@@ -12,7 +12,7 @@
 
   /* Typography */
   --font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  --brand-size: clamp(2.4rem, 8vw, 7rem);
+  --brand-size: clamp(1.8rem, 6vw, 5rem);
   --tagline-size: clamp(0.9rem, 1.4vw, 1.15rem);
   --button-size: clamp(0.9rem, 1.6vw, 1.05rem);
   --divider-width: min(420px, 60vw);
