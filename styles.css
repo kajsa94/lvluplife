@@ -48,7 +48,7 @@ body{
   align-content: center;
   gap: var(--hero-gap);
   text-align: center;
-  padding: 6vh 24px 10vh;
+  padding: 2vh 24px 10vh;
 }
 
 .brand{
