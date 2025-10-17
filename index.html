@@ -2,26 +2,37 @@
 <html lang="sv">
 <head>
   <meta charset="utf-8" />
-  <script>
-  // Automatiskt redirect mellan www och icke-www
-  const host = window.location.hostname;
-  if (host === "www.lvluplife.org") {
-    window.location.href = "https://lvluplife.org" + window.location.pathname;
-  }
-</script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife – Start</title>
 
   <style>
     /* =========================================================
-       (1) KONTROLLPANEL – ändra stil, färg, tider här
+       (1) KONTROLLPANEL – ändra utseende, färger & avstånd här
        ========================================================= */
     :root{
       /* Färger */
       --bg: #0a0a0a;
       --fg: #ffffff;
       --title-glow: rgba(0,255,200,.5);
-      --accent: rgba(255,255,255,.3); /* används för streck + text */
+      --accent: rgba(255,255,255,.3); /* färg för strecket */
+
+      /* Rubrik */
+      --title-size-min: 2.5rem;
+      --title-size-fluid: 8vw;
+      --title-size-max: 6rem;
+      --title-bottom-gap: 18px;        /* avstånd rubrik → streck */
+
+      /* Streck */
+      --divider-width: 160px;
+      --divider-height: 2px;
+      --divider-opacity: .5;
+      --divider-bottom-gap: 16px;      /* avstånd streck → subtext */
+
+      /* Subtext (“This is a tool for the one who needs the extra HP”) */
+      --subtext-size: 1rem;
+      --subtext-opacity: .6;
+      --subtext-letterspace: .05em;
+      --subtext-bottom-gap: 28px;      /* avstånd subtext → knapp */
 
       /* Knapp */
       --btn-text: #ffffff;
@@ -33,6 +44,11 @@
       --btn-letterspace: 2px;
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
+
+      /* Hint (under knappen) */
+      --hint-size: .95rem;
+      --hint-opacity: .6;
+      --hint-top-gap: 14px;
 
       /* Portal-effekt */
       --portal-cyan: rgba(0,255,255,.15);
@@ -59,26 +75,36 @@
        (3) RUBRIK + STRECK
        ========================================================= */
     h1{
-      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-      margin-bottom: 18px;
+      margin-bottom: var(--title-bottom-gap);
       text-shadow: 0 0 25px var(--title-glow);
     }
 
     .divider{
-      width: 170px;
-      height: 2px;
+      width: var(--divider-width);
+      height: var(--divider-height);
       background: var(--accent);
-      margin: 0 auto 60px auto;
+      margin: 0 auto var(--divider-bottom-gap) auto;
       border-radius: 1px;
-      opacity: .5;
+      opacity: var(--divider-opacity);
     }
-    
 
     /* =========================================================
-       (4) KNAPP
+       (4) SUBTEXT ("Are you ready?")
+       ========================================================= */
+    .subtext{
+      font-size: var(--subtext-size);
+      opacity: var(--subtext-opacity);
+      letter-spacing: var(--subtext-letterspace);
+      color: var(--fg);
+      margin-bottom: var(--subtext-bottom-gap);
+    }
+
+    /* =========================================================
+       (5) KNAPP
        ========================================================= */
     .start-btn{
       display:inline-block;
@@ -95,8 +121,8 @@
       box-shadow: var(--btn-shadow);
       transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
       will-change: transform, box-shadow, filter;
-      z-index: 2;
       text-decoration:none;
+      z-index:2;
     }
     .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
     .start-btn:active{ transform: scale(.98) }
@@ -106,17 +132,17 @@
     }
 
     /* =========================================================
-       (5) TEXT UNDER KNAPPEN
+       (6) HINT under knappen
        ========================================================= */
     .hint{
-      margin-top:14px;
-      font-size: .95rem;
-      opacity: .6;
+      margin-top: var(--hint-top-gap);
+      font-size: var(--hint-size);
+      opacity: var(--hint-opacity);
       letter-spacing: .05em;
     }
 
     /* =========================================================
-       (6) PORTAL-OVERLAYS
+       (7) PORTAL-OVERLAYS (Safari-vänlig flash)
        ========================================================= */
     .fade-overlay, .flash-overlay{
       position:fixed; inset:0; z-index:5; pointer-events:none; opacity:0;
@@ -124,7 +150,6 @@
       backface-visibility: hidden;
       transform-origin: 50% 50%;
     }
-
     .fade-overlay{
       background: radial-gradient(circle at 50% 50%,
                   var(--portal-cyan) 0%,
@@ -134,7 +159,6 @@
     }
     .fade-active{ opacity:1; }
 
-    /* Ny, Safari-vänlig vit flash (utan blur) */
     .flash-overlay{
       background: #ffffff;
       clip-path: circle(8% at 50% 50%);
@@ -153,23 +177,25 @@
 </head>
 <body>
   <main>
-    <!-- (7) RUBRIK + STRECK -->
+    <!-- RUBRIK + STRECK -->
     <h1>Lvluplife</h1>
     <div class="divider"></div>
-    <p class="hint">This is a progression tracker for the one who needs the extra HP</p>
 
-    <!-- (8) KNAPP -->
+    <!-- SUBTEXT: mellan strecket och knappen -->
+    <p class="subtext">Are you ready?</p>
+
+    <!-- KNAPP -->
     <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
 
-    <!-- (9) TEXT UNDER KNAPP -->
+    <!-- HINT under knappen -->
     <p class="hint">Do you have what it takes?</p>
   </main>
 
-  <!-- (10) PORTAL-LAGER -->
+  <!-- PORTAL-LAGER -->
   <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
   <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
 
-  <!-- (11) SCRIPT – PORTALLOGIK -->
+  <!-- SCRIPT – portal + back-knapp-fix -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const NEXT_URL = 'journey.html';
@@ -180,8 +206,7 @@
       const flash = document.getElementById('flashLayer');
 
       let clicked = false;
-      let navT1 = null;
-      let navT2 = null;
+      let navT1 = null, navT2 = null;
 
       function resetPortal(){
         fade.classList.remove('fade-active');
@@ -194,7 +219,6 @@
         if (navT2){ clearTimeout(navT2); navT2 = null; }
       }
 
-      // Reset vid bakåtknapp/bfcache
       window.addEventListener('pageshow', resetState);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') resetState();
