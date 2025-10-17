@@ -1,169 +1,39 @@
-:root {
-  /* COLORS */
-  --bg: #0a0b0c;
-  --text: #e6f7ff;
-  --muted: 0.72;
-  --accent-1: #00e1ff;
-  --accent-2: #0066ff;
-  --glow: #b9fff6;
-
-  /* TYPOGRAPHY */
-  --font: "Inter", sans-serif;
-  --brand-size: clamp(1.8rem, 6vw, 5rem);   /* titelns storlek */
-  --tagline-size: clamp(0.9rem, 1.4vw, 1.15rem);
-  --button-size: clamp(0.9rem, 1.6vw, 1.05rem);
-
-  /* SPACING */
-  --hero-gap: clamp(16px, 3vw, 28px);
-
-  /* EFFECTS */
-  --portal-duration: 900ms;
-  --portal-blur: 26px;
-  --portal-mist: 48px;
-}
-
-/* BASE */
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; padding: 0; }
+/* === BAS === */
 body {
-  background: radial-gradient(60vw 60vw at 50% -10%, rgba(0,230,255,.06), transparent 60%), var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-}
-
-/* HERO SECTION */
-.hero {
-  min-height: 100dvh;
-  display: grid;
-  align-items: start;      /* flyttar texten upp */
-  justify-items: center;
-  gap: var(--hero-gap);
-  text-align: center;
-  padding-top: 10vh;       /* justera höjd här */
-}
-
-.brand {
-  font-size: var(--brand-size);
-  letter-spacing: .12em;
-  font-weight: 800;
   margin: 0;
-  text-shadow:
-    0 0 10px var(--glow),
-    0 0 20px rgba(0,255,230,.25);
-}
-
-.divider {
-  width: min(420px, 60vw);
-  height: 1px;
-  border: none;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
-}
-
-.tagline {
-  margin: 0;
-  font-size: var(--tagline-size);
-  opacity: var(--muted);
-}
-
-/* BUTTON */
-.cta {
-  position: relative;
-  font-weight: 800;
-  font-size: var(--button-size);
-  letter-spacing: .06em;
-  padding: 16px 26px;
-  border-radius: 14px;
-  border: 0;
-  color: white;
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-  cursor: pointer;
+  height: 100vh;
+  display: flex;
+  justify-content: center;     /* horisontell position */
+  align-items: flex-start;     /* vertikal position (ändra till center om du vill) */
+  background-color: #000;      /* bakgrundsfärg */
   overflow: hidden;
-  z-index: 2;
-  box-shadow: 0 10px 30px rgba(0, 153, 255, .28);
-  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 
-/* subtle glow */
-.cta::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: inherit;
-  background: radial-gradient(40% 60% at 50% 40%, rgba(0,255,210,.18), transparent 60%);
-  filter: blur(10px);
-  opacity: 0.7;
-  z-index: -1;
-  transition: opacity .2s ease, filter .2s ease;
-}
-
-/* shiny sweep on hover */
-.cta::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.45) 50%,
-    rgba(255,255,255,0) 100%
-  );
-  transform: skewX(-20deg);
-  transition: all 0.8s ease;
-}
-
-.cta:hover::before {
-  left: 125%;
-}
-
-.cta:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 40px rgba(0, 153, 255, .38);
-  filter: saturate(1.1);
-}
-
-/* PORTAL EFFECT */
-.portal {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  opacity: 0;
-  background:
-    radial-gradient(120vmax 120vmax at 50% 50%, rgba(255,255,255,.9), rgba(255,255,255,.7) 30%, rgba(255,255,255,.4) 55%, rgba(255,255,255,0) 70%) center/cover no-repeat,
-    radial-gradient(40vmax 40vmax at 50% 45%, rgba(180,255,250,.5), transparent 60%) center/cover no-repeat;
-  backdrop-filter: blur(0px);
-  transition: opacity var(--portal-duration) ease, backdrop-filter var(--portal-duration) ease;
-}
-
-.portal.portal--open {
-  opacity: 1;
-  backdrop-filter: blur(var(--portal-blur)) saturate(1.08);
-  animation: mist var(--portal-duration) ease both;
-}
-
-@keyframes mist {
-  0%   { box-shadow: inset 0 0 0 0 rgba(255,255,255,0); }
-  60%  { box-shadow: inset 0 0 0 var(--portal-mist) rgba(255,255,255,.6); }
-  100% { box-shadow: inset 0 0 0 0 rgba(255,255,255,0); }
-}
-
-/* NEXT PAGE */
-.next-wrap {
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 18px;
+/* === TEXT === */
+h1 {
+  margin-top: 5vh;             /* hur högt upp texten ligger */
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(2rem, 8vw, 6rem);  /* responsiv storlek */
+  color: #fff;                 /* textfärg */
+  text-transform: uppercase;
+  letter-spacing: 4px;
   text-align: center;
+  transition: all 0.3s ease;
+
+  /* Glow-effekt – justera färg, intensitet & blur här */
+  text-shadow:
+    0 0 5px #0ff,
+    0 0 10px #0ff,
+    0 0 20px #0ff,
+    0 0 40px #0ff;
 }
 
-.backlink {
-  color: #9ed8ff;
-  text-decoration: none;
-}
-.backlink:hover {
-  text-decoration: underline;
+/* === HOVER EFFEKT (frivillig) === */
+h1:hover {
+  text-shadow:
+    0 0 10px #fff,
+    0 0 20px #0ff,
+    0 0 40px #0ff,
+    0 0 80px #0ff;
+  transform: scale(1.03);
 }
