@@ -8,7 +8,7 @@
   --muted: 0.72;                 /* undertext opacitet */
   --accent-1: #00e1ff;           /* knapp vänster */
   --accent-2: #0066ff;           /* knapp höger */
-  --glow: #b9fff6;               /* titelns yttre sken */
+  --glow: #FFFFFF;               /* titelns yttre sken */
 
   /* Typography */
   --font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -21,8 +21,8 @@
   --hero-gap: clamp(16px, 3vw, 28px);
 
   /* Effects & Motion */
-  --brand-glow-blur: 15px;
-  --brand-glow-spread: 0 0 38px var(--glow), 0 0 70px rgba(0,255,230,.25);
+  --brand-glow-blur: 22px;
+  --brand-glow-spread: 0 0 10px var(--glow), 0 0 70px rgba(0,255,230,.25);
   --portal-duration: 900ms;      /* längd på portalanim */
   --portal-blur: 26px;
   --portal-mist: 48px;
