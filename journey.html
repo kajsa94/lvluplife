@@ -1,1 +1,332 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lvluplife – Journey</title>
+
+  <style>
+    /* ============================================
+       (1) SNABBA INSTÄLLNINGAR – ändra här
+       ============================================ */
+    :root {
+      /* Färger */
+      --page-bg: #000;            /* svart bakgrund */
+      --title-color: #fff;        /* vit rubrik */
+      --text-color: #111;         /* text i vit ruta */
+      --box-bg: #fff;             /* rutan är vit */
+      --box-border: rgba(0,0,0,.15);
+      --box-border-focus: #111;
+      --hover-bg: rgba(0,0,0,.06);
+
+      /* Skuggor */
+      --shadow-1: 0 1px 2px rgba(0,0,0,.04);
+      --shadow-2: 0 2px 8px rgba(0,0,0,.08);
+      --popup-shadow: 0 12px 28px rgba(0,0,0,.12), 0 2px 4px rgba(0,0,0,.06);
+
+      /* Typografi */
+      --font-main: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      --title-size: clamp(24px, 4vw, 42px);
+      --label-size: 14px;
+      --field-font-size: 16px;
+
+      /* Layout */
+      --radius: 12px;
+      --section-pad-y: 80px;
+      --gap: 18px;
+      --field-pad-y: 14px;
+      --field-pad-x: 16px;
+      --list-pad: 8px;
+      --option-pad-y: 12px;
+      --option-pad-x: 12px;
+      --max-width: 720px;
+
+      /* ===== Portal-IN (startanimation när sidan laddas) ===== */
+      --portal-in-duration: 1.10s;           /* matchas även från JS */
+      --portal-in-bg-mid: rgba(255,255,255,.70);
+      --portal-in-bg-end: rgba(255,255,255,1);
+
+      /* Valfri intro-text som visas under portal-in */
+      --portal-in-text: "Choose your path";
+      --portal-in-font-size: clamp(18px, 3.2vw, 28px);
+      --portal-in-color: rgba(0,0,0,0.85);
+      --portal-in-weight: 800;
+      --portal-in-letter: .02em;
+      --portal-in-text-in: 500ms;
+      --portal-in-text-out: 420ms;
+      --portal-in-lift-in: 6px;
+      --portal-in-lift-out: -4px;
+    }
+
+    /* ============================================
+       (2) BASLAYOUT
+       ============================================ */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--page-bg);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: var(--section-pad-y) 20px;
+      overflow-x: hidden;
+    }
+
+    main {
+      width: 100%;
+      max-width: var(--max-width);
+      text-align: left;
+    }
+
+    h1 {
+      color: var(--title-color);
+      font-size: var(--title-size);
+      font-weight: 800;
+      letter-spacing: .04em;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    /* ============================================
+       (3) FÄLTET (dropdown)
+       ============================================ */
+    .journey-field {
+      position: relative;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .journey-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: var(--label-size);
+      color: rgba(255,255,255,.7);
+    }
+
+    .journey-dropdown-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--field-pad-y) var(--field-pad-x);
+      border: 1px solid var(--box-border);
+      border-radius: var(--radius);
+      background: var(--box-bg);
+      color: var(--text-color);
+      font-size: var(--field-font-size);
+      cursor: pointer;
+      box-shadow: var(--shadow-1);
+      transition: box-shadow .15s ease, border-color .15s ease, transform .04s ease;
+    }
+    .journey-dropdown-btn:hover { box-shadow: var(--shadow-2); }
+    .journey-dropdown-btn:active { transform: translateY(1px); }
+    .journey-dropdown-btn:focus { outline: none; border-color: var(--box-border-focus); }
+
+    .chevron { opacity: .6; }
+
+    .journey-dropdown {
+      position: absolute;
+      left: 0; right: 0;
+      top: calc(100% + 8px);
+      z-index: 20;
+      background: var(--box-bg);
+      border: 1px solid var(--box-border);
+      border-radius: var(--radius);
+      box-shadow: var(--popup-shadow);
+      padding: var(--list-pad);
+      list-style: none;
+      margin: 0;
+    }
+    .hidden { display: none; }
+
+    .journey-option {
+      padding: var(--option-pad-y) var(--option-pad-x);
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer;
+      font-size: var(--field-font-size);
+      color: var(--text-color);
+    }
+    .journey-option:hover,
+    .journey-option[aria-selected="true"] {
+      background: var(--hover-bg);
+    }
+
+    /* ============================================
+       (4) PORTAL-IN OVERLAY + text
+       ============================================ */
+    .portal-in-overlay, .portal-in-text {
+      position: fixed; inset: 0; pointer-events: none;
+    }
+    .portal-in-overlay {
+      z-index: 9998;
+      background: rgba(255,255,255,0);
+      opacity: 0;
+    }
+    .portal-in-overlay.is-active {
+      animation: portalInFill var(--portal-in-duration) cubic-bezier(.23,1,.32,1) forwards;
+    }
+    @keyframes portalInFill {
+      0%   { background: rgba(255,255,255,1); opacity: 1; }
+      45%  { background: var(--portal-in-bg-mid); opacity: 1; }
+      100% { background: rgba(255,255,255,0); opacity: 0; }
+    }
+
+    .portal-in-text {
+      z-index: 9999;
+      display: grid; place-items: center;
+      opacity: 0;
+      transform: translateY(var(--portal-in-lift-in));
+      padding: 0 16px; text-align: center;
+      mix-blend-mode: multiply;
+    }
+    .portal-in-text.show {
+      transition:
+        opacity var(--portal-in-text-in) cubic-bezier(.25,.8,.25,1),
+        transform var(--portal-in-text-in) cubic-bezier(.25,.8,.25,1);
+      opacity: 1; transform: translateY(0);
+    }
+    .portal-in-text.hide {
+      transition:
+        opacity var(--portal-in-text-out) cubic-bezier(.25,.8,.25,1),
+        transform var(--portal-in-text-out) cubic-bezier(.25,.8,.25,1);
+      opacity: 0; transform: translateY(var(--portal-in-lift-out));
+    }
+    .portal-in-text span {
+      font: var(--portal-in-weight) var(--portal-in-font-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: var(--portal-in-letter);
+      color: var(--portal-in-color);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .portal-in-overlay, .portal-in-text { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>What do you want to level up?</h1>
+
+    <div class="journey-field">
+      <label for="journey-category" class="journey-label">Choose a category</label>
+
+      <button type="button" id="journeyDropdownBtn"
+              class="journey-dropdown-btn"
+              aria-haspopup="listbox" aria-expanded="false">
+        <span id="journeyDropdownText">Välj kategori…</span>
+        <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" class="chevron">
+          <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <ul id="journeyDropdown" class="journey-dropdown hidden" role="listbox" aria-labelledby="journeyDropdownBtn">
+        <li class="journey-option" role="option" data-value="Lifestyle" aria-selected="false">Lifestyle</li>
+        <li class="journey-option" role="option" data-value="Health" aria-selected="false">Health</li>
+        <li class="journey-option" role="option" data-value="Career" aria-selected="false">Career</li>
+        <li class="journey-option" role="option" data-value="Finance" aria-selected="false">Finance</li>
+      </ul>
+
+      <input type="hidden" name="journey_category" id="journey-category" value="">
+    </div>
+  </main>
+
+  <!-- PORTAL-IN lager -->
+  <div class="portal-in-overlay" id="portalInOverlay" aria-hidden="true"></div>
+  <div class="portal-in-text" id="portalInText" aria-hidden="true"><span></span></div>
+
+  <script>
+    (function () {
+      /* =============================
+         DROPDOWN
+         ============================= */
+      const btn = document.getElementById('journeyDropdownBtn');
+      const list = document.getElementById('journeyDropdown');
+      const text = document.getElementById('journeyDropdownText');
+      const hidden = document.getElementById('journey-category');
+
+      function openList() {
+        list.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      function closeList() {
+        list.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn.addEventListener('click', () => {
+        const isOpen = btn.getAttribute('aria-expanded') === 'true';
+        isOpen ? closeList() : openList();
+      });
+
+      list.addEventListener('click', (e) => {
+        const item = e.target.closest('.journey-option');
+        if (!item) return;
+        list.querySelectorAll('.journey-option').forEach(o => o.setAttribute('aria-selected', 'false'));
+        item.setAttribute('aria-selected', 'true');
+
+        const value = item.dataset.value;
+        text.textContent = value;
+        hidden.value = value;
+
+        closeList();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!list.contains(e.target) && !btn.contains(e.target)) closeList();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeList();
+      });
+
+      /* =============================
+         PORTAL-IN (vid sidladdning)
+         Själv-synkande tider
+         ============================= */
+      const portalOverlay = document.getElementById('portalInOverlay');
+      const portalText = document.getElementById('portalInText');
+      const portalTextSpan = portalText.querySelector('span');
+
+      // Centrala tider – ändra bara dessa två om du vill
+      const PORTAL_IN_TOTAL_MS = 1100;    // total längd på portal-in
+      const TEXT_SHOW_FRACTION = 0.18;    // när texten dyker upp (andel av total)
+      const TEXT_HIDE_BEFORE_END = 360;   // börja tona ut X ms innan slut
+
+      // Synka CSS-variabeln (så animationen matchar totalen)
+      document.documentElement.style.setProperty('--portal-in-duration', (PORTAL_IN_TOTAL_MS/1000)+'s');
+
+      // Sätt text från CSS-variabel (fallback om tom)
+      const cssText = getCSSVar('--portal-in-text') || '';
+      portalTextSpan.textContent = cssText.replace(/^["']|["']$/g, '');
+
+      // Kör effekten efter att DOM har målats
+      requestAnimationFrame(() => {
+        // starta overlay
+        portalOverlay.classList.add('is-active');
+
+        // visa text lite efter start
+        const showDelay = Math.round(PORTAL_IN_TOTAL_MS * TEXT_SHOW_FRACTION);
+        const hideAt = Math.max(0, PORTAL_IN_TOTAL_MS - TEXT_HIDE_BEFORE_END);
+
+        const showT = setTimeout(() => portalText.classList.add('show'), showDelay);
+        const hideT = setTimeout(() => portalText.classList.add('hide'), hideAt);
+
+        // städa bort element efter klar animation
+        const cleanupT = setTimeout(() => {
+          portalOverlay.remove();
+          portalText.remove();
+          clearTimeout(showT); clearTimeout(hideT);
+        }, PORTAL_IN_TOTAL_MS + 80);
+      });
+
+      function getCSSVar(name){
+        const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return val;
+      }
+    })();
+  </script>
+</body>
+</html>
 
