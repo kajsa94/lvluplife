@@ -11,10 +11,10 @@ body {
 
 /* === TEXT === */
 h1 {
-  margin-top: 5vh;             /* hur högt upp texten ligger */
+  margin-top: 2vh;             /* hur högt upp texten ligger */
   font-family: "Poppins", sans-serif;
   font-size: 6rem; /* ändra det här värdet för att göra texten större eller mindre */
-  color: #fff;                 /* textfärg */
+  color: #FFFFFF;                 /* textfärg */
   text-transform: uppercase;
   letter-spacing: 4px;
   text-align: center;
@@ -23,9 +23,9 @@ h1 {
   /* Glow-effekt – justera färg, intensitet & blur här */
   text-shadow:
     0 0 5px #0ff,
-    0 0 10px #0ff,
-    0 0 20px #0ff,
-    0 0 40px #0ff;
+    0 0 5px #0ff,
+    0 0 5px #0ff,
+    0 0 5px #0ff;
 }
 
 /* === HOVER EFFEKT (frivillig) === */
