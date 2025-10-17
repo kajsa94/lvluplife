@@ -5,96 +5,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {margin:0;padding:0;box-sizing:border-box;}
 
     html, body {
-      height: 100%;
-      width: 100%;
-      background-color: #0a0a0a;
-      font-family: "Poppins", "Helvetica Neue", sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      padding-top: 12vh;
-      color: white;
-      overflow: hidden;
+      height:100%;
+      width:100%;
+      background:#0a0a0a;
+      font-family:"Poppins","Helvetica Neue",sans-serif;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:center;
+      padding-top:12vh;
+      color:#fff;
+      overflow:hidden;
     }
 
     h1 {
-      font-size: clamp(2.5rem, 8vw, 6rem);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: #fff;
-      text-transform: uppercase;
-      margin-bottom: 60px;
-      text-shadow: 0 0 25px rgba(0, 255, 200, 0.5);
+      font-size:clamp(2.5rem,8vw,6rem);
+      font-weight:700;
+      letter-spacing:0.08em;
+      margin-bottom:60px;
+      text-transform:uppercase;
+      text-shadow:0 0 25px rgba(0,255,200,.5);
     }
 
     .start-btn {
-      background: linear-gradient(90deg, #00f0ff, #0077ff);
-      color: #fff;
-      font-size: 1.2rem;
-      padding: 18px 50px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 2px;
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 2;
+      background:linear-gradient(90deg,#00f0ff,#0077ff);
+      color:#fff;
+      font-size:1.2rem;
+      padding:18px 50px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      text-transform:uppercase;
+      font-weight:600;
+      letter-spacing:2px;
+      box-shadow:0 0 25px rgba(0,255,255,.3);
+      transition:transform .3s,box-shadow .3s;
+      z-index:2;
+    }
+    .start-btn:hover{
+      transform:scale(1.05);
+      box-shadow:0 0 40px rgba(0,255,255,.8);
     }
 
-    .start-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
-      background: linear-gradient(90deg, #00ffee, #00aaff);
+    /* Fade och flash */
+    .fade-overlay, .flash-overlay {
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      pointer-events:none;
+      opacity:0;
+      z-index:5;
     }
 
-    /* PORTAL OVERLAY */
     .fade-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.95));
-      opacity: 0;
-      transition: opacity 2.5s ease;
-      z-index: 5;
+      background:radial-gradient(circle at center,
+        rgba(0,255,255,.15),
+        rgba(0,0,0,.9) 80%);
+      transition:opacity 1.2s ease-out;
     }
 
-    /* Explosion / ljuseffekt */
-    .portal-flash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 60%, rgba(255,255,255,0) 100%);
-      opacity: 0;
-      z-index: 10;
-      pointer-events: none;
+    .flash-overlay {
+      background:radial-gradient(circle at center,
+        rgba(255,255,255,1) 0%,
+        rgba(255,255,255,.6) 40%,
+        rgba(255,255,255,0) 80%);
+      transform:scale(0.2);
     }
 
-    /* Aktiveras vid klick */
-    .fade-active {
-      opacity: 1;
-    }
-
+    .fade-active {opacity:1;}
     .flash-active {
-      animation: flashExpand 2s forwards;
+      animation:flashExpand 2.2s cubic-bezier(0.25, 1, 0.3, 1) forwards;
     }
 
     @keyframes flashExpand {
-      0% { opacity: 0; transform: scale(0.2); filter: blur(10px); }
-      40% { opacity: 0.8; transform: scale(1.2); filter: blur(0); }
-      70% { opacity: 1; transform: scale(2); filter: blur(10px); }
-      100% { opacity: 1; transform: scale(3); filter: blur(40px); }
+      0%   {opacity:0; transform:scale(0.2); filter:blur(10px);}
+      30%  {opacity:0.6; transform:scale(1.2); filter:blur(2px);}
+      60%  {opacity:1; transform:scale(2);   filter:blur(6px);}
+      100% {opacity:1; transform:scale(3.5); filter:blur(20px);}
     }
   </style>
 </head>
@@ -102,33 +91,40 @@
   <h1>Lvluplife</h1>
   <button class="start-btn" onclick="enterPortal()">Start your journey</button>
 
-  <!-- Portaleffekter -->
   <div class="fade-overlay" id="fadeLayer"></div>
-  <div class="portal-flash" id="flashLayer"></div>
+  <div class="flash-overlay" id="flashLayer"></div>
 
-  <!-- Ljud (kan bytas ut till eget ljud) -->
-  <audio id="portalSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3"></audio>
+  <!-- Portal-ljud -->
+  <audio id="portalSound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    function enterPortal() {
-      const fade = document.getElementById('fadeLayer');
-      const flash = document.getElementById('flashLayer');
-      const sound = document.getElementById('portalSound');
+    const fade = document.getElementById('fadeLayer');
+    const flash = document.getElementById('flashLayer');
+    const sound = document.getElementById('portalSound');
 
-      // Start fade och ljud
+    function resetPortal(){
+      fade.classList.remove('fade-active');
+      flash.classList.remove('flash-active');
+    }
+
+    // Rensa effekter när man går bakåt
+    window.addEventListener('pageshow', resetPortal);
+
+    async function enterPortal() {
+      resetPortal();
+      sound.currentTime = 0;
+      sound.volume = 0.8;
+      try { await sound.play(); } catch(e) {} // iOS-säkring
+
       fade.classList.add('fade-active');
-      sound.volume = 0.6;
-      sound.play();
+      flash.classList.add('flash-active');
 
-      // Vänta lite innan flashen startar (för mer dramatisk effekt)
-      setTimeout(() => {
-        flash.classList.add('flash-active');
-      }, 1000);
-
-      // Gå vidare när animationen är klar
+      // Navigera efter 2,2 sek (matchar animationen)
       setTimeout(() => {
         window.location.href = "journey.html";
-      }, 2500);
+      }, 2200);
     }
   </script>
 </body>
