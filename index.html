@@ -1,36 +1,16 @@
-/* === RUBRIK (h1) === */
-/*
-  Här styr du allt för huvudrubriken på sidan.
-  Du kan ändra storlek, färg, typsnitt, placering, spacing, skugga – allt separat.
-*/
-
-h1 {
-  /* --- Placering --- */
-  text-align: center;      /* Centrerar rubriken (vänster, höger eller center) */
-  margin-top: 40px;        /* Avstånd från toppen av sidan (ändra t.ex. 0px–100px) */
-  margin-bottom: 18px;     /* Avstånd ned till nästa element (t.ex. texten under) */
-
-  /* --- Text och stil --- */
-  font-size: 64px;         /* Storlek på texten (px, vw, em – testa olika enheter) */
-  font-weight: 800;        /* Tjocklek (400 = normal, 700 = bold, 900 = extra tjock) */
-  letter-spacing: 1px;     /* Avstånd mellan bokstäver */
-  line-height: 1.1;        /* Hur tätt raderna ligger (1.0 = tätt, 1.5 = luftigt) */
-  font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  text-transform: none;    /* Du kan skriva uppercase / lowercase / capitalize */
-
-  /* --- Färger och effekter --- */
-  color: #0f1222;          /* Ändra färg – t.ex. #000000 (svart), #3b82f6 (blå), #ec4899 (rosa) */
-  text-shadow: 0 3px 10px rgba(0,0,0,0.1); /* Ger en mjuk skugga bakom texten */
-  transition: color 0.3s ease, text-shadow 0.3s ease; /* Smidig övergång vid hover */
-
-  /* --- Animation (valfritt) --- */
-  /* Exempel: gör rubriken sakta “andas” likt pulsen i knappen */
-  animation: titlePulse 6s ease-in-out infinite;
-}
-
-/* --- Animationens keyframes (valfritt) --- */
-@keyframes titlePulse {
-  0%   { text-shadow: 0 3px 10px rgba(0,0,0,0.1); transform: scale(1); }
-  50%  { text-shadow: 0 5px 18px rgba(0,0,0,0.15); transform: scale(1.02); }
-  100% { text-shadow: 0 3px 10px rgba(0,0,0,0.1); transform: scale(1); }
-}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lvluplife</title>
+  <link rel="stylesheet" href="styles.css"> <!-- ta bort denna rad om du inte har styles.css -->
+</head>
+<body>
+  <main style="text-align:center; padding:4rem 1rem;">
+    <h1>Lvluplife</h1>
+    <p>Small steps. Big change.</p>
+    <p><a href="journey.html">Start your journey →</a></p>
+  </main>
+</body>
+</html>
