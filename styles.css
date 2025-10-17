@@ -2,17 +2,14 @@
    ENKLA ENDA VÄRDEN ATT ÄNDRA
    ========================================== */
 :root{
-  --font: 'Orbitron', sans-serif; /* typsnitt */
+  --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* vanlig, modern font */
   --text-size: 6rem;              /* rubrikstorlek */
   --text-color: #ffffff;          /* textfärg (och linjefärg) */
   --top-offset: 10vh;             /* avstånd från toppen */
   --glow: 0px;                    /* text-glow (0px = av). Öka t.ex. till 18px vid behov */
-
   --line-width: 240px;            /* linjens längd */
   --line-height: 2px;             /* linjens tjocklek */
   --line-gap: 12px;               /* avstånd mellan rubrik och linje */
-  --shimmer-intensity: 14px;      /* styr hur starkt det glimrar när det händer */
-  --shimmer-period: 8s;           /* hur sällan glimret sker (större = mer sällan) */
 }
 
 /* ==========================================
@@ -45,12 +42,11 @@ h1{
   font-size: var(--text-size);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  /* Glow styrs av ETT värde: --glow (0px = ingen glow) */
   text-shadow: 0 0 var(--glow) currentColor;
 }
 
 /* ==========================================
-   LINJE MED SUBTILT SHIMMER
+   ENKEL LINJE UNDER TEXTEN
    ========================================== */
 .shimmer-line{
   width: var(--line-width);
@@ -58,21 +54,5 @@ h1{
   margin: var(--line-gap) auto 0;
   background: var(--text-color);
   border-radius: 999px;
-  opacity: 0.35; /* svagt i utgångsläget */
-  animation: shimmerPulse var(--shimmer-period) infinite ease-in-out;
-}
-
-@keyframes shimmerPulse{
-  0%, 90%, 100%{
-    opacity: 0.25;
-    box-shadow: none;
-    filter: none;
-  }
-  95%{
-    opacity: 1;
-    box-shadow:
-      0 0 var(--shimmer-intensity) var(--text-color),
-      0 0 calc(var(--shimmer-intensity) * 2) var(--text-color);
-    filter: brightness(1.15);
-  }
+  opacity: 0.8;
 }
