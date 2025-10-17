@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife</title>
   <style>
-    /* Grundinställningar */
     * {
       margin: 0;
       padding: 0;
@@ -15,40 +14,87 @@
     html, body {
       height: 100%;
       width: 100%;
-      background-color: #fafafa;
+      background-color: #0a0a0a;
       font-family: "Poppins", "Helvetica Neue", sans-serif;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-padding-top: 7.5vh; /* justerar hur långt ner texten hamnar */
-
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 12vh;
+      color: white;
+      overflow: hidden;
     }
 
     h1 {
       font-size: clamp(2.5rem, 8vw, 6rem);
       font-weight: 700;
       letter-spacing: 0.08em;
-      color: #111;
-      text-align: center;
+      color: #fff;
       text-transform: uppercase;
-      position: relative;
+      margin-bottom: 60px;
+      text-shadow: 0 0 15px rgba(0, 255, 200, 0.4);
     }
 
-    /* Subtil linje bakom texten */
-    h1::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -10px;
-      transform: translateX(-50%);
-      width: 60%;
-      height: 2px;
-      background: linear-gradient(to right, #000, #555);
-      opacity: 0.15;
+    .start-btn {
+      background: linear-gradient(90deg, #00f0ff, #0077ff);
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 18px 50px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 2px;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .start-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+      background: linear-gradient(90deg, #00ffee, #00aaff);
+    }
+
+    .start-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+
+    /* Fade-overlay för portal-effekt */
+    .fade-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 1));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.2s ease;
+      z-index: 5;
+    }
+
+    .fade-active {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <h1>Lvluplife</h1>
+  <button class="start-btn" onclick="enterPortal()">Start your journey</button>
+  <div class="fade-overlay" id="portalFade"></div>
+
+  <script>
+    function enterPortal() {
+      const fade = document.getElementById('portalFade');
+      fade.classList.add('fade-active');
+      setTimeout(() => {
+        window.location.href = "journey.html"; // ändra till din nästa sida
+      }, 1200); // matchar fade-durationen
+    }
+  </script>
 </body>
 </html>
