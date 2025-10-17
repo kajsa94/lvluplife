@@ -1,19 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lvluplife</title>
+  <title>Lvluplife – Start</title>
 
   <style>
+    /* =========================================================
+       (1) KONTROLLPANEL – ÄNDRA ALLT HÄR
+       ========================================================= */
     :root{
-      --bg: #0a0a0a;
-      --fg: #ffffff;
+      /* Färger & text */
+      --bg: #0a0a0a;                 /* sidans bakgrund */
+      --fg: #ffffff;                 /* standardtextfärg */
       --title-glow: rgba(0,255,200,.5);
 
+      /* KNAPPENS UTSEENDE */
       --btn-text: #ffffff;
-      --btn-grad-from: #00f0ff;
-      --btn-grad-to:   #0077ff;
+      --btn-grad-from: #00f0ff;      /* vänster */
+      --btn-grad-to:   #0077ff;      /* höger */
       --btn-radius: 12px;
       --btn-pad-y: 18px;
       --btn-pad-x: 52px;
@@ -21,14 +26,17 @@
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      --fade-duration: 0.9s;
-      --flash-duration: 1.8s;
+      /* PORTAL/TRANSITION – ”ingång” på start-sidan */
+      /* Gör skenet snabbare & mjukare här */
+      --fade-duration: 0.6s;         /* cyan-vignetten (bakgrund) */
+      --flash-duration: 1.4s;        /* vita portal-ljuset (huvudeffekt) */
       --portal-cyan: rgba(0,255,255,.15);
-      --flash-blur-min: 10px;
-      --flash-blur-max: 20px;
-      --flash-scale-start: .2;
-      --flash-scale-end: 3;
+      --flash-blur-min: 6px;         /* mjuk start */
+      --flash-blur-max: 16px;        /* mjuk topp */
+      --flash-scale-start: .25;      /* startstorlek */
+      --flash-scale-end:   2.4;      /* slutstorlek (“whiten out”) */
 
+      /* Layout */
       --top-space: 12vh;
       --title-size-min: 2.5rem;
       --title-size-fluid: 8vw;
@@ -36,6 +44,9 @@
       --max-width: 920px;
     }
 
+    /* =========================================================
+       (2) BASLAYOUT
+       ========================================================= */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -48,6 +59,9 @@
     }
     main{ width:min(var(--max-width),92vw); text-align:center; }
 
+    /* =========================================================
+       (3) RUBRIK
+       ========================================================= */
     h1{
       font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
       font-weight: 800;
@@ -57,6 +71,9 @@
       text-shadow: 0 0 25px var(--title-glow);
     }
 
+    /* =========================================================
+       (4) KNAPP – det här är din CTA
+       ========================================================= */
     .start-btn{
       display:inline-block;
       padding: var(--btn-pad-y) var(--btn-pad-x);
@@ -77,11 +94,16 @@
     .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
     .start-btn:active{ transform: scale(.98) }
 
+    /* =========================================================
+       (5) PORTAL-OVERLAYS – skapar ”fade + vitt sken”
+           Dessa läggs över hela sidan vid klick.
+       ========================================================= */
     .fade-overlay, .flash-overlay{
       position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
-      will-change: opacity, transform, filter;
+      will-change: opacity, transform, filter; /* prestanda */
     }
 
+    /* Cyan vignette (bakgrundsfade) */
     .fade-overlay{
       background: radial-gradient(circle at center,
                   var(--portal-cyan),
@@ -90,6 +112,7 @@
     }
     .fade-active{ opacity:1 }
 
+    /* Vitt portal-ljus (huvudeffekt) */
     .flash-overlay{
       background: radial-gradient(circle at center,
                   rgba(255,255,255,1) 0%,
@@ -98,49 +121,46 @@
       transform: scale(var(--flash-scale-start));
       filter: blur(var(--flash-blur-min));
     }
+    /* Mjukare kurva: snabb i början, lugn i slutet */
     .flash-active{
       animation: flashExpand var(--flash-duration)
-                 cubic-bezier(.25,1,.3,1) forwards;
+                 cubic-bezier(.22,.61,.36,1) forwards;
     }
     @keyframes flashExpand{
-      0%   { opacity:0; transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
-      25%  { opacity:.6; transform:scale(1.1); filter:blur(2px); }
-      55%  { opacity:1;  transform:scale(1.9); filter:blur(6px); }
-      100% { opacity:1;  transform:scale(var(--flash-scale-end)); filter:blur(var(--flash-blur-max)); }
+      0%   { opacity:0;  transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
+      20%  { opacity:.55; transform:scale(1.05);                    filter:blur(3px); }
+      55%  { opacity:.95; transform:scale(1.7);                     filter:blur(6px); }
+      100% { opacity:1;   transform:scale(var(--flash-scale-end));  filter:blur(var(--flash-blur-max)); }
     }
   </style>
 </head>
 <body>
   <main>
+    <!-- (6) RUBRIK – byt text fritt -->
     <h1>Lvluplife</h1>
+
+    <!-- (7) KNAPP – klick = starta portal och navigera -->
     <button class="start-btn" onclick="enterPortal()">Start your journey</button>
+    <!-- <p class="hint">Your journey starts here…</p> -->
   </main>
 
-  <div class="fade-overlay"  id="fadeLayer"></div>
-  <div class="flash-overlay" id="flashLayer"></div>
+  <!-- (8) OVERLAYS – visas när portalen triggas -->
+  <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
+  <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
 
   <script>
+    /* =========================================================
+       (9) PORTAL-LOGIK – HÄR STYR DU NAVIGATION & TIMING
+       ========================================================= */
+
+    // 9.1 Hämta overlay-element
     const fade  = document.getElementById('fadeLayer');
     const flash = document.getElementById('flashLayer');
 
-    const NEXT_URL = "journey.html";
-    const NAV_DELAY_MS = 1900;
+    // 9.2 Mål-URL och navigationsfördröjning
+    //     Sätt NAV_DELAY_MS = samma som --flash-duration i ms (1.4s = 1400)
+    const NEXT_URL     = "journey.html";
+    const NAV_DELAY_MS = 1400;
 
-    function resetPortal(){
-      fade.classList.remove('fade-active');
-      flash.classList.remove('flash-active');
-    }
-    window.addEventListener('pageshow', resetPortal);
-
-    const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-    async function enterPortal(){
-      resetPortal();
-      await nextFrame(); // ser till att CSS-omstarten hinner ske
-      fade.classList.add('fade-active');
-      flash.classList.add('flash-active');
-      setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
-    }
-  </script>
-</body>
-</html>
+    // 9.3 Nollställ overlays (används både vid klick och när man kommer tillbaka med back-knapp)
+    function resetP
