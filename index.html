@@ -6,46 +6,36 @@
   <title>Lvluplife</title>
 
   <style>
-    /* =========================================================
-       1) KONTROLLPANEL – ÄNDRA ALLT HÄR
-       ========================================================= */
     :root{
-      /* Färger (bakgrund, text, accent) */
-      --bg: #0a0a0a;            /* sidans bakgrund */
-      --fg: #ffffff;            /* standardtextfärg */
-      --title-glow: rgba(0,255,200,.5); /* rubrikens glöd */
+      --bg: #0a0a0a;
+      --fg: #ffffff;
+      --title-glow: rgba(0,255,200,.5);
 
-      /* Knappens stil */
       --btn-text: #ffffff;
-      --btn-grad-from: #00f0ff; /* vänster färg */
-      --btn-grad-to:   #0077ff; /* höger färg */
+      --btn-grad-from: #00f0ff;
+      --btn-grad-to:   #0077ff;
       --btn-radius: 12px;
-      --btn-pad-y: 18px;        /* vertikal padding */
-      --btn-pad-x: 52px;        /* horisontell padding */
+      --btn-pad-y: 18px;
+      --btn-pad-x: 52px;
       --btn-letterspace: 2px;
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      /* Portal/fade-effekt */
-      --fade-duration: 0.9s;    /* bakgrunds-faden (snabb/mjuk) */
-      --flash-duration: 1.8s;   /* vita portal-ljuset */
-      --portal-cyan: rgba(0,255,255,.15); /* cyan-ljuskant i fade */
-      --flash-blur-min: 10px;   /* start-blur för ljuset */
-      --flash-blur-max: 20px;   /* slut-blur för ljuset */
-      --flash-scale-start: .2;  /* startskala */
-      --flash-scale-end:   3;   /* slutskala (större = mer “whiten out”) */
+      --fade-duration: 0.9s;
+      --flash-duration: 1.8s;
+      --portal-cyan: rgba(0,255,255,.15);
+      --flash-blur-min: 10px;
+      --flash-blur-max: 20px;
+      --flash-scale-start: .2;
+      --flash-scale-end: 3;
 
-      /* Layout */
-      --top-space: 12vh;        /* hur långt ner från toppen */
-      --title-size-min: 2.5rem; /* min rubrikstorlek */
-      --title-size-fluid: 8vw;  /* flytande del (anpassar efter viewport) */
-      --title-size-max: 6rem;   /* max rubrikstorlek */
-      --max-width: 920px;       /* maxbredd för innehållet */
+      --top-space: 12vh;
+      --title-size-min: 2.5rem;
+      --title-size-fluid: 8vw;
+      --title-size-max: 6rem;
+      --max-width: 920px;
     }
 
-    /* =========================================================
-       2) BASLAYOUT
-       ========================================================= */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -58,9 +48,6 @@
     }
     main{ width:min(var(--max-width),92vw); text-align:center; }
 
-    /* =========================================================
-       3) RUBRIK
-       ========================================================= */
     h1{
       font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
       font-weight: 800;
@@ -70,9 +57,6 @@
       text-shadow: 0 0 25px var(--title-glow);
     }
 
-    /* =========================================================
-       4) KNAPP
-       ========================================================= */
     .start-btn{
       display:inline-block;
       padding: var(--btn-pad-y) var(--btn-pad-x);
@@ -93,14 +77,11 @@
     .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
     .start-btn:active{ transform: scale(.98) }
 
-    /* =========================================================
-       5) PORTAL-OVERLAYS (fade + vit flash)
-       ========================================================= */
     .fade-overlay, .flash-overlay{
       position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
+      will-change: opacity, transform, filter;
     }
 
-    /* Mörk → cyan vignette-fade (bakgrund) */
     .fade-overlay{
       background: radial-gradient(circle at center,
                   var(--portal-cyan),
@@ -109,7 +90,6 @@
     }
     .fade-active{ opacity:1 }
 
-    /* Vitt portal-ljus som expanderar mjukt */
     .flash-overlay{
       background: radial-gradient(circle at center,
                   rgba(255,255,255,1) 0%,
@@ -128,72 +108,37 @@
       55%  { opacity:1;  transform:scale(1.9); filter:blur(6px); }
       100% { opacity:1;  transform:scale(var(--flash-scale-end)); filter:blur(var(--flash-blur-max)); }
     }
-
-    /* (Valfritt) liten “hint”-text under knappen */
-    .hint{ margin-top:14px; opacity:.65; font-size:.9rem }
   </style>
 </head>
 <body>
   <main>
-    <!-- 6) RUBRIK – ändra texten här -->
     <h1>Lvluplife</h1>
-
-    <!-- 7) KNAPP – ändra texten och målsidan i JS-funktionen nedan -->
     <button class="start-btn" onclick="enterPortal()">Start your journey</button>
-    <!-- <p class="hint">Your journey starts here…</p> -->
   </main>
 
-  <!-- 8) OVERLAYS för portaleffekten -->
   <div class="fade-overlay"  id="fadeLayer"></div>
   <div class="flash-overlay" id="flashLayer"></div>
 
-  <!-- 9) LJUD – byt src till egen fil om du vill. Volym & timing styrs i JS -->
-  <audio id="portalSound" preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3" type="audio/mpeg">
-  </audio>
-
   <script>
-    /* =========================================================
-       10) PORTAL-LOGIK
-          – ändra NAVIGATIONS-URL, tider, volym här
-       ========================================================= */
     const fade  = document.getElementById('fadeLayer');
     const flash = document.getElementById('flashLayer');
-    const sound = document.getElementById('portalSound');
 
-    // Justera navigationen (målsida), samt buffert före navigation
-    const NEXT_URL = "journey.html";   // <- byt målsida här
-    const NAV_DELAY_MS = 1900;         // ska vanligtvis ≈ var(--flash-duration) i ms
-
-    // Ljud-kontroller
-    const SOUND_ENABLED = true;        // sätt false om du vill testa utan ljud
-    const SOUND_VOLUME  = 0.9;         // 0.0–1.0
+    const NEXT_URL = "journey.html";
+    const NAV_DELAY_MS = 1900;
 
     function resetPortal(){
       fade.classList.remove('fade-active');
       flash.classList.remove('flash-active');
     }
-
-    // Fix för bakåtknapp: nollställ overlays när sidan visas igen
     window.addEventListener('pageshow', resetPortal);
+
+    const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     async function enterPortal(){
       resetPortal();
-
-      // Starta ljud direkt vid klick (iOS kräver user gesture)
-      if (SOUND_ENABLED){
-        try{
-          sound.currentTime = 0;
-          sound.volume = SOUND_VOLUME;
-          await sound.play();
-        }catch(e){ /* om ljud blockas – fortsätt ändå */ }
-      }
-
-      // Starta visuella effekter
+      await nextFrame(); // ser till att CSS-omstarten hinner ske
       fade.classList.add('fade-active');
       flash.classList.add('flash-active');
-
-      // Navigera när animationen är klar
       setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
     }
   </script>
