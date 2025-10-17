@@ -12,7 +12,7 @@ body {
 /* === TEXT === */
 h1 {
   margin-top: 2vh;             /* hur högt upp texten ligger */
-  font-family: "Poppins", sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 6rem; /* ändra det här värdet för att göra texten större eller mindre */
   color: #FFFFFF;                 /* textfärg */
   text-transform: uppercase;
@@ -32,8 +32,8 @@ h1 {
 h1:hover {
   text-shadow:
     0 0 10px #FFFFFF,
-    0 0 20px #FFFFFF,
-    0 0 40px #FFFFFF,
-    0 0 80px #FFFFFF;
+    0 0 10px #FFFFFF,
+    0 0 10px #FFFFFF,
+    0 0 10px #FFFFFF;
   transform: scale(1.03);
 }
