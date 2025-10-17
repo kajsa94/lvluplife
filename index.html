@@ -4,13 +4,49 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife</title>
-  <link rel="stylesheet" href="styles.css"> <!-- ta bort denna rad om du inte har styles.css -->
+  <style>
+    /* Grundinställningar */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background-color: #fafafa;
+      font-family: "Poppins", "Helvetica Neue", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #111;
+      text-align: center;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    /* Subtil linje bakom texten */
+    h1::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 2px;
+      background: linear-gradient(to right, #000, #555);
+      opacity: 0.15;
+    }
+  </style>
 </head>
 <body>
-  <main style="text-align:center; padding:4rem 1rem;">
-    <h1>Lvluplife</h1>
-    <p>Small steps. Big change.</p>
-    <p><a href="journey.html">Start your journey →</a></p>
-  </main>
+  <h1>Lvluplife</h1>
 </body>
 </html>
