@@ -1,16 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LVLUPLIFE</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Lvluplife – Start</title>
+
+  <!-- Länka till din CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <main class="wrap">
-    <h1>LVLUPLIFE</h1>
-    <div class="shimmer-line"></div>
-    <a href="next.html" class="main-button">START YOUR JOURNEY</a>
+  <main>
+    <!-- RUBRIK + STRECK -->
+    <h1>Lvluplife</h1>
+    <div class="divider"></div>
+
+    <!-- SUBTEXT -->
+    <p class="subtext">This is a tool for the one who needs the extra HP</p>
+
+    <!-- KNAPP -->
+    <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
+
+    <!-- HINT -->
+    <p class="hint">Do you have what it takes?</p>
   </main>
-</body>
-</html>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const NEXT_URL = 'journey.html';
+      const root = getComputedStyle(document.documentElement);
+
+      const TOTAL = +(root.getPropertyValue('--dream-total-ms').trim() || 1800);
+      const SHOW_FRAC = +(root.getPropertyValue('--show-delay-frac').trim() || 0.30);
+      const HIDE_BEFORE = +(root.getPropertyValue('--hide-before-end-ms').trim() || 520);
+
+      const SHOW_MS = Math.round(TOTAL * SHOW_FRAC);
+
+      const startBtn = document.getElementById('startBtn');
+      let clicked = false;
+      let timers = [];
+
+      function t(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
+      function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+
+      function makeOverlay(){
+        const wrap = document.createElement('div');
+        wrap.className = 'dream-overlay';
+        wrap.innerHTML = `
+          <div class="veil"></div>
+          <div class="mist mist-1"></div>
+          <div class="mist mist-2"></div>
+          <div class="mist mist-3"></div>
+          <div class="whisper" aria-hidden="true"><div class="line"></div></div>
+        `;
+        document.body.appendChild(wrap);
+        return wrap;
+      }
+
+      function setWhisper(wrap){
+        const whisper = wrap.querySelector('.whisper');
+        const line = whisper.querySelector('.line');
+        let txt = getComputedStyle(document.documentElement).getPropertyValue('--whisper-text').trim();
+        txt = txt.replace(/^["']|["']$/g,'');
+        if(!txt) txt = 'Do you have what it takes?';
+        line.innerHTML = '';
+        for (const ch of txt){
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = ch;
+          line.appendChild(span);
+        }
+        return whisper;
+      }
+
+      function whisperWave(whisper){
+        const chars = Array.from(whisper.querySelectorAll('.char'));
+        if (!chars.length) return;
+        const css = getComputedStyle(document.documentElement);
+        const min = +(css.getPropertyValue('--char-stagger-min').trim() || 16);
+        const max = +(css.getPropertyValue('--char-stagger-max').trim() || 60);
+        let tacc = 0;
+        chars.forEach((span) => {
+          const jitter = Math.floor(min + Math.random() * (max - min));
+          tacc += jitter;
+          t(()=> span.classList.add('on'), tacc);
+        });
+      }
+
+      function enterDream(e){
+        e.preventDefault();
+        if (clicked) return;
+        clicked = true;
+
+        const overlay = makeOverlay();
+        const whisper = setWhisper(overlay);
+
+        t(() => { whisper.classList.add('show'); whisperWave(whisper); }, SHOW_MS);
+        const hideAt = Math.max(0, TOTAL - HIDE_BEFORE);
+        t(() => whisper.classList.add('hide'), hideAt);
+        t(() => { window.location.href = NEXT_URL; }, TOTAL);
+        t(() => { overlay.remove(); clearAll(); }, TOTAL + 250);
+      }
+
+      startBtn.addEventListener('click', enterDream);
+      startBtn.addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterDream(e); }
+      });
+
+      window.addEventListener('pageshow', () => { clicked = false; clearAll(); });
+    });
+  </script>
+</bod
+
