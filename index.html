@@ -7,18 +7,18 @@
 
   <style>
     /* =========================================================
-       (1) KONTROLLPANEL – ÄNDRA ALLT HÄR
+       (1) KONTROLLPANEL – ändra stil & timing här
        ========================================================= */
     :root{
       /* Färger & text */
-      --bg: #0a0a0a;                 /* sidans bakgrund */
-      --fg: #ffffff;                 /* standardtextfärg */
+      --bg: #0a0a0a;
+      --fg: #ffffff;
       --title-glow: rgba(0,255,200,.5);
 
-      /* KNAPPENS UTSEENDE */
+      /* Knapp */
       --btn-text: #ffffff;
-      --btn-grad-from: #00f0ff;      /* vänster */
-      --btn-grad-to:   #0077ff;      /* höger */
+      --btn-grad-from: #00f0ff;
+      --btn-grad-to:   #0077ff;
       --btn-radius: 12px;
       --btn-pad-y: 18px;
       --btn-pad-x: 52px;
@@ -26,15 +26,14 @@
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      /* PORTAL/TRANSITION – ”ingång” på start-sidan */
-      /* Gör skenet snabbare & mjukare här */
-      --fade-duration: 0.6s;         /* cyan-vignetten (bakgrund) */
-      --flash-duration: 1.4s;        /* vita portal-ljuset (huvudeffekt) */
+      /* Portal (fade + vitt sken) – justera känslan här */
       --portal-cyan: rgba(0,255,255,.15);
-      --flash-blur-min: 6px;         /* mjuk start */
-      --flash-blur-max: 16px;        /* mjuk topp */
-      --flash-scale-start: .25;      /* startstorlek */
-      --flash-scale-end:   2.4;      /* slutstorlek (“whiten out”) */
+      --fade-duration: 0.45s;   /* cyan vignette – lite snabbare */
+      --flash-duration: 1.0s;   /* vita skenet – snabbare & smooth */
+      --flash-blur-min: 4px;    /* mjukare start */
+      --flash-blur-max: 14px;   /* mindre hårt slut */
+      --flash-scale-start: .28; /* minskar “pop” i början */
+      --flash-scale-end: 2.2;   /* mjukare slutskala */
 
       /* Layout */
       --top-space: 12vh;
@@ -45,7 +44,7 @@
     }
 
     /* =========================================================
-       (2) BASLAYOUT
+       (2) Baslayout
        ========================================================= */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
@@ -60,7 +59,7 @@
     main{ width:min(var(--max-width),92vw); text-align:center; }
 
     /* =========================================================
-       (3) RUBRIK
+       (3) Rubrik
        ========================================================= */
     h1{
       font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
@@ -72,7 +71,7 @@
     }
 
     /* =========================================================
-       (4) KNAPP – det här är din CTA
+       (4) Knapp (CSP-säker – ingen inline onclick)
        ========================================================= */
     .start-btn{
       display:inline-block;
@@ -89,10 +88,14 @@
       box-shadow: var(--btn-shadow);
       transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
       will-change: transform, box-shadow, filter;
-      z-index: 2;
+      z-index: 2; /* ovanför innehåll, under overlays (som är klick-genom) */
     }
     .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
     .start-btn:active{ transform: scale(.98) }
+    .start-btn:focus-visible{
+      outline: 2px solid rgba(0,255,200,.6);
+      outline-offset: 3px;
+    }
 
     /* =========================================================
        (5) PORTAL-OVERLAYS – skapar ”fade + vitt sken”
@@ -101,66 +104,107 @@
     .fade-overlay, .flash-overlay{
       position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
       will-change: opacity, transform, filter; /* prestanda */
+      transform-origin: 50% 50%;
+      backface-visibility: hidden;
+      contain: layout paint;
     }
 
     /* Cyan vignette (bakgrundsfade) */
     .fade-overlay{
-      background: radial-gradient(circle at center,
-                  var(--portal-cyan),
-                  rgba(0,0,0,.9) 80%);
-      transition: opacity var(--fade-duration) ease-out;
+      background: radial-gradient(circle at 50% 50%,
+                  var(--portal-cyan) 0%,
+                  rgba(0,0,0,.85) 78%,
+                  rgba(0,0,0,.95) 100%);
+      transition: opacity var(--fade-duration) cubic-bezier(.25,.9,.3,1) .05s; /* liten delay */
     }
     .fade-active{ opacity:1 }
 
     /* Vitt portal-ljus (huvudeffekt) */
     .flash-overlay{
-      background: radial-gradient(circle at center,
+      background: radial-gradient(circle at 50% 52%,
                   rgba(255,255,255,1) 0%,
-                  rgba(255,255,255,.6) 40%,
-                  rgba(255,255,255,0) 80%);
-      transform: scale(var(--flash-scale-start));
+                  rgba(255,255,255,.65) 36%,
+                  rgba(255,255,255,.0) 78%);
+      transform: translateZ(0) scale(var(--flash-scale-start));
       filter: blur(var(--flash-blur-min));
     }
-    /* Mjukare kurva: snabb i början, lugn i slutet */
+    /* Mjukare kurva: snabb i början, väldigt mjuk i slutet */
     .flash-active{
       animation: flashExpand var(--flash-duration)
-                 cubic-bezier(.22,.61,.36,1) forwards;
+                 cubic-bezier(.23,1,.32,1) forwards;
     }
     @keyframes flashExpand{
-      0%   { opacity:0;  transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
-      20%  { opacity:.55; transform:scale(1.05);                    filter:blur(3px); }
-      55%  { opacity:.95; transform:scale(1.7);                     filter:blur(6px); }
-      100% { opacity:1;   transform:scale(var(--flash-scale-end));  filter:blur(var(--flash-blur-max)); }
+      0%   { opacity:.01; transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
+      15%  { opacity:.5;  transform:scale(1.06);                      filter:blur(3px); }
+      50%  { opacity:.92; transform:scale(1.65);                      filter:blur(5px); }
+      100% { opacity:1;   transform:scale(var(--flash-scale-end));    filter:blur(var(--flash-blur-max)); }
     }
   </style>
 </head>
 <body>
   <main>
-    <!-- (6) RUBRIK – byt text fritt -->
+    <!-- (6) Rubrik -->
     <h1>Lvluplife</h1>
 
-    <!-- (7) KNAPP – klick = starta portal och navigera -->
-    <button class="start-btn" onclick="enterPortal()">Start your journey</button>
-    <!-- <p class="hint">Your journey starts here…</p> -->
+    <!-- (7) Knappen (ingen inline onclick) -->
+    <button id="startBtn" class="start-btn" type="button">Start your journey</button>
   </main>
 
-  <!-- (8) OVERLAYS – visas när portalen triggas -->
+  <!-- (8) Overlays för portalen -->
   <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
   <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
 
+  <!-- (9) Script – portal + navigation -->
   <script>
     /* =========================================================
-       (9) PORTAL-LOGIK – HÄR STYR DU NAVIGATION & TIMING
+       PORTAL-LOGIK – ändra mål-URL & tider här
        ========================================================= */
+    const NEXT_URL     = 'journey.html';  // byt om filen ligger på annan plats
+    const NAV_DELAY_MS = 1000;            // matchar --flash-duration: 1.0s
 
-    // 9.1 Hämta overlay-element
-    const fade  = document.getElementById('fadeLayer');
-    const flash = document.getElementById('flashLayer');
+    const startBtn = document.getElementById('startBtn');
+    const fade     = document.getElementById('fadeLayer');
+    const flash    = document.getElementById('flashLayer');
 
-    // 9.2 Mål-URL och navigationsfördröjning
-    //     Sätt NAV_DELAY_MS = samma som --flash-duration i ms (1.4s = 1400)
-    const NEXT_URL     = "journey.html";
-    const NAV_DELAY_MS = 1400;
+    // Nollställ overlays (används även när man kommer tillbaka med back-knappen)
+    function resetPortal(){
+      fade.classList.remove('fade-active');
+      flash.classList.remove('flash-active');
+    }
 
-    // 9.3 Nollställ overlays (används både vid klick och när man kommer tillbaka med back-knapp)
-    function resetP
+    // Dubbel rAF garanterar att CSS hinner ”släppa” före omstart av animation
+    const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    // Fräsch start när sidan visas igen via historiken
+    window.addEventListener('pageshow', resetPortal);
+
+    // Huvudflöde: klick → portal → navigera
+    let clicked = false;
+    async function enterPortal(){
+      if (clicked) return; // skydd mot dubbelklick
+      clicked = true;
+
+      resetPortal();
+      await nextFrame(); // säker anim-trigger
+
+      fade.classList.add('fade-active');
+      flash.classList.add('flash-active');
+
+      // Navigera när animationen är klar
+      setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
+
+      // Failsafe: om något glitchar, navigera ändå lite senare
+      setTimeout(() => {
+        if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
+      }, NAV_DELAY_MS + 500);
+    }
+
+    // Koppla knappen (CSP-säkert)
+    startBtn.addEventListener('click', enterPortal);
+    startBtn.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterPortal(); }
+    });
+  </script>
+</body>
+</html>
+
