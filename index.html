@@ -50,7 +50,7 @@
       box-shadow:0 0 40px rgba(0,255,255,.8);
     }
 
-    /* Fade och flash */
+    /* Fade & Flash */
     .fade-overlay, .flash-overlay {
       position:fixed;
       top:0;left:0;width:100%;height:100%;
@@ -63,7 +63,7 @@
       background:radial-gradient(circle at center,
         rgba(0,255,255,.15),
         rgba(0,0,0,.9) 80%);
-      transition:opacity 1.2s ease-out;
+      transition:opacity 0.9s ease-out; /* snabbare fade */
     }
 
     .flash-overlay {
@@ -76,14 +76,14 @@
 
     .fade-active {opacity:1;}
     .flash-active {
-      animation:flashExpand 2.2s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+      animation:flashExpand 1.8s cubic-bezier(0.25, 1, 0.3, 1) forwards; /* snabbare & smooth */
     }
 
     @keyframes flashExpand {
       0%   {opacity:0; transform:scale(0.2); filter:blur(10px);}
-      30%  {opacity:0.6; transform:scale(1.2); filter:blur(2px);}
-      60%  {opacity:1; transform:scale(2);   filter:blur(6px);}
-      100% {opacity:1; transform:scale(3.5); filter:blur(20px);}
+      25%  {opacity:0.6; transform:scale(1.1); filter:blur(2px);}
+      55%  {opacity:1; transform:scale(1.9); filter:blur(6px);}
+      100% {opacity:1; transform:scale(3); filter:blur(20px);}
     }
   </style>
 </head>
@@ -94,7 +94,6 @@
   <div class="fade-overlay" id="fadeLayer"></div>
   <div class="flash-overlay" id="flashLayer"></div>
 
-  <!-- Portal-ljud -->
   <audio id="portalSound" preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3" type="audio/mpeg">
   </audio>
@@ -109,22 +108,21 @@
       flash.classList.remove('flash-active');
     }
 
-    // Rensa effekter när man går bakåt
     window.addEventListener('pageshow', resetPortal);
 
     async function enterPortal() {
       resetPortal();
       sound.currentTime = 0;
-      sound.volume = 0.8;
-      try { await sound.play(); } catch(e) {} // iOS-säkring
+      sound.volume = 0.9;
+      try { await sound.play(); } catch(e) {}
 
       fade.classList.add('fade-active');
       flash.classList.add('flash-active');
 
-      // Navigera efter 2,2 sek (matchar animationen)
+      // navigera lite tidigare eftersom animationen är snabbare
       setTimeout(() => {
         window.location.href = "journey.html";
-      }, 2200);
+      }, 1900);
     }
   </script>
 </body>
