@@ -22,10 +22,10 @@ h1 {
 
   /* Glow-effekt – justera färg, intensitet & blur här */
   text-shadow:
-    0 0 5px #0ff,
-    0 0 5px #0ff,
-    0 0 5px #0ff,
-    0 0 5px #0ff;
+    0 0 5px #FFFFFF,
+    0 0 5px #FFFFFF,
+    0 0 5px #FFFFFF,
+    0 0 5px #FFFFFF;
 }
 
 /* === HOVER EFFEKT (frivillig) === */
