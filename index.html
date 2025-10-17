@@ -7,13 +7,14 @@
 
   <style>
     /* =========================================================
-       (1) KONTROLLPANEL – ändra stil & timing här
+       (1) KONTROLLPANEL – ändra stil, färg, tider här
        ========================================================= */
     :root{
-      /* Färger & text */
+      /* Färger */
       --bg: #0a0a0a;
       --fg: #ffffff;
       --title-glow: rgba(0,255,200,.5);
+      --accent: rgba(255,255,255,.3); /* används för streck + text */
 
       /* Knapp */
       --btn-text: #ffffff;
@@ -26,25 +27,14 @@
       --btn-fontsize: 1.2rem;
       --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      /* Portal (fade + vitt sken) – justera känslan här */
+      /* Portal-effekt */
       --portal-cyan: rgba(0,255,255,.15);
-      --fade-duration: 0.45s;   /* cyan vignette – lite snabbare */
-      --flash-duration: 1.0s;   /* vita skenet – snabbare & smooth */
-      --flash-blur-min: 4px;    /* mjukare start */
-      --flash-blur-max: 14px;   /* mindre hårt slut */
-      --flash-scale-start: .28; /* minskar “pop” i början */
-      --flash-scale-end: 2.2;   /* mjukare slutskala */
-
-      /* Layout */
-      --top-space: 12vh;
-      --title-size-min: 2.5rem;
-      --title-size-fluid: 8vw;
-      --title-size-max: 6rem;
-      --max-width: 920px;
+      --fade-duration: 0.40s;
+      --flash-duration: 0.90s;
     }
 
     /* =========================================================
-       (2) Baslayout
+       (2) BASLAYOUT
        ========================================================= */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
@@ -54,24 +44,33 @@
       font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
       display:flex; flex-direction:column; align-items:center;
       justify-content:flex-start; overflow:hidden;
-      padding-top: var(--top-space);
+      padding-top: 12vh;
     }
-    main{ width:min(var(--max-width),92vw); text-align:center; }
+    main{ width:min(920px,92vw); text-align:center; }
 
     /* =========================================================
-       (3) Rubrik
+       (3) RUBRIK + STRECK
        ========================================================= */
     h1{
-      font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
+      font-size: clamp(2.5rem, 8vw, 6rem);
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-      margin-bottom: 60px;
+      margin-bottom: 18px;
       text-shadow: 0 0 25px var(--title-glow);
     }
 
+    .divider{
+      width: 160px;
+      height: 2px;
+      background: var(--accent);
+      margin: 0 auto 60px auto;
+      border-radius: 1px;
+      opacity: .5;
+    }
+
     /* =========================================================
-       (4) Knapp (CSP-säker – ingen inline onclick)
+       (4) KNAPP
        ========================================================= */
     .start-btn{
       display:inline-block;
@@ -88,7 +87,8 @@
       box-shadow: var(--btn-shadow);
       transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
       will-change: transform, box-shadow, filter;
-      z-index: 2; /* ovanför innehåll, under overlays (som är klick-genom) */
+      z-index: 2;
+      text-decoration:none;
     }
     .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
     .start-btn:active{ transform: scale(.98) }
@@ -98,113 +98,123 @@
     }
 
     /* =========================================================
-       (5) PORTAL-OVERLAYS – skapar ”fade + vitt sken”
-           Dessa läggs över hela sidan vid klick.
+       (5) TEXT UNDER KNAPPEN
        ========================================================= */
-    .fade-overlay, .flash-overlay{
-      position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
-      will-change: opacity, transform, filter; /* prestanda */
-      transform-origin: 50% 50%;
-      backface-visibility: hidden;
-      contain: layout paint;
+    .hint{
+      margin-top:14px;
+      font-size: .95rem;
+      opacity: .6;
+      letter-spacing: .05em;
     }
 
-    /* Cyan vignette (bakgrundsfade) */
+    /* =========================================================
+       (6) PORTAL-OVERLAYS
+       ========================================================= */
+    .fade-overlay, .flash-overlay{
+      position:fixed; inset:0; z-index:5; pointer-events:none; opacity:0;
+      will-change: opacity, transform, clip-path;
+      backface-visibility: hidden;
+      transform-origin: 50% 50%;
+    }
+
     .fade-overlay{
       background: radial-gradient(circle at 50% 50%,
                   var(--portal-cyan) 0%,
                   rgba(0,0,0,.85) 78%,
                   rgba(0,0,0,.95) 100%);
-      transition: opacity var(--fade-duration) cubic-bezier(.25,.9,.3,1) .05s; /* liten delay */
+      transition: opacity var(--fade-duration) cubic-bezier(.25,.9,.3,1) .05s;
     }
-    .fade-active{ opacity:1 }
+    .fade-active{ opacity:1; }
 
-    /* Vitt portal-ljus (huvudeffekt) */
+    /* Ny, Safari-vänlig vit flash (utan blur) */
     .flash-overlay{
-      background: radial-gradient(circle at 50% 52%,
-                  rgba(255,255,255,1) 0%,
-                  rgba(255,255,255,.65) 36%,
-                  rgba(255,255,255,.0) 78%);
-      transform: translateZ(0) scale(var(--flash-scale-start));
-      filter: blur(var(--flash-blur-min));
+      background: #ffffff;
+      clip-path: circle(8% at 50% 50%);
+      opacity: .01;
     }
-    /* Mjukare kurva: snabb i början, väldigt mjuk i slutet */
     .flash-active{
-      animation: flashExpand var(--flash-duration)
-                 cubic-bezier(.23,1,.32,1) forwards;
+      animation: flashClip var(--flash-duration) cubic-bezier(.23,1,.32,1) forwards;
     }
-    @keyframes flashExpand{
-      0%   { opacity:.01; transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
-      15%  { opacity:.5;  transform:scale(1.06);                      filter:blur(3px); }
-      50%  { opacity:.92; transform:scale(1.65);                      filter:blur(5px); }
-      100% { opacity:1;   transform:scale(var(--flash-scale-end));    filter:blur(var(--flash-blur-max)); }
+    @keyframes flashClip{
+      0%   { clip-path: circle(8% at 50% 50%);  opacity: .01; transform: scale(.98); }
+      25%  { clip-path: circle(38% at 50% 50%); opacity: .55; transform: scale(1.02); }
+      60%  { clip-path: circle(90% at 50% 50%); opacity: .95; transform: scale(1.08); }
+      100% { clip-path: circle(140% at 50% 50%); opacity: 1;   transform: scale(1.10); }
     }
   </style>
 </head>
 <body>
   <main>
-    <!-- (6) Rubrik -->
+    <!-- (7) RUBRIK + STRECK -->
     <h1>Lvluplife</h1>
+    <div class="divider"></div>
 
-    <!-- (7) Knappen (ingen inline onclick) -->
-    <button id="startBtn" class="start-btn" type="button">Start your journey</button>
+    <!-- (8) KNAPP -->
+    <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
+
+    <!-- (9) TEXT UNDER KNAPP -->
+    <p class="hint">Do you have what it takes?</p>
   </main>
 
-  <!-- (8) Overlays för portalen -->
+  <!-- (10) PORTAL-LAGER -->
   <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
   <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
 
-  <!-- (9) Script – portal + navigation -->
+  <!-- (11) SCRIPT – PORTALLOGIK -->
   <script>
-    /* =========================================================
-       PORTAL-LOGIK – ändra mål-URL & tider här
-       ========================================================= */
-    const NEXT_URL     = 'journey.html';  // byt om filen ligger på annan plats
-    const NAV_DELAY_MS = 1000;            // matchar --flash-duration: 1.0s
+    document.addEventListener('DOMContentLoaded', () => {
+      const NEXT_URL = 'journey.html';
+      const NAV_DELAY_MS = 900;
 
-    const startBtn = document.getElementById('startBtn');
-    const fade     = document.getElementById('fadeLayer');
-    const flash    = document.getElementById('flashLayer');
+      const startBtn = document.getElementById('startBtn');
+      const fade = document.getElementById('fadeLayer');
+      const flash = document.getElementById('flashLayer');
 
-    // Nollställ overlays (används även när man kommer tillbaka med back-knappen)
-    function resetPortal(){
-      fade.classList.remove('fade-active');
-      flash.classList.remove('flash-active');
-    }
+      let clicked = false;
+      let navT1 = null;
+      let navT2 = null;
 
-    // Dubbel rAF garanterar att CSS hinner ”släppa” före omstart av animation
-    const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      function resetPortal(){
+        fade.classList.remove('fade-active');
+        flash.classList.remove('flash-active');
+      }
+      function resetState(){
+        clicked = false;
+        resetPortal();
+        if (navT1){ clearTimeout(navT1); navT1 = null; }
+        if (navT2){ clearTimeout(navT2); navT2 = null; }
+      }
 
-    // Fräsch start när sidan visas igen via historiken
-    window.addEventListener('pageshow', resetPortal);
+      // Reset vid bakåtknapp/bfcache
+      window.addEventListener('pageshow', resetState);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') resetState();
+      });
 
-    // Huvudflöde: klick → portal → navigera
-    let clicked = false;
-    async function enterPortal(){
-      if (clicked) return; // skydd mot dubbelklick
-      clicked = true;
+      const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-      resetPortal();
-      await nextFrame(); // säker anim-trigger
+      async function enterPortal(e){
+        e.preventDefault();
+        if (clicked) return;
+        clicked = true;
 
-      fade.classList.add('fade-active');
-      flash.classList.add('flash-active');
+        resetPortal();
+        await nextFrame();
 
-      // Navigera när animationen är klar
-      setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
+        fade.classList.add('fade-active');
+        flash.classList.add('flash-active');
 
-      // Failsafe: om något glitchar, navigera ändå lite senare
-      setTimeout(() => {
-        if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
-      }, NAV_DELAY_MS + 500);
-    }
+        navT1 = setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
+        navT2 = setTimeout(() => {
+          if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
+        }, NAV_DELAY_MS + 500);
+      }
 
-    // Koppla knappen (CSP-säkert)
-    startBtn.addEventListener('click', enterPortal);
-    startBtn.addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterPortal(); }
+      startBtn.addEventListener('click', enterPortal);
+      startBtn.addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterPortal(e); }
+      });
     });
   </script>
 </body>
 </html>
-
