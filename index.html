@@ -4,125 +4,197 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife</title>
+
   <style>
-    * {margin:0;padding:0;box-sizing:border-box;}
+    /* =========================================================
+       1) KONTROLLPANEL – ÄNDRA ALLT HÄR
+       ========================================================= */
+    :root{
+      /* Färger (bakgrund, text, accent) */
+      --bg: #0a0a0a;            /* sidans bakgrund */
+      --fg: #ffffff;            /* standardtextfärg */
+      --title-glow: rgba(0,255,200,.5); /* rubrikens glöd */
 
-    html, body {
-      height:100%;
-      width:100%;
-      background:#0a0a0a;
-      font-family:"Poppins","Helvetica Neue",sans-serif;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      align-items:center;
-      padding-top:12vh;
-      color:#fff;
-      overflow:hidden;
-    }
+      /* Knappens stil */
+      --btn-text: #ffffff;
+      --btn-grad-from: #00f0ff; /* vänster färg */
+      --btn-grad-to:   #0077ff; /* höger färg */
+      --btn-radius: 12px;
+      --btn-pad-y: 18px;        /* vertikal padding */
+      --btn-pad-x: 52px;        /* horisontell padding */
+      --btn-letterspace: 2px;
+      --btn-fontsize: 1.2rem;
+      --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-    h1 {
-      font-size:clamp(2.5rem,8vw,6rem);
-      font-weight:700;
-      letter-spacing:0.08em;
-      margin-bottom:60px;
-      text-transform:uppercase;
-      text-shadow:0 0 25px rgba(0,255,200,.5);
-    }
+      /* Portal/fade-effekt */
+      --fade-duration: 0.9s;    /* bakgrunds-faden (snabb/mjuk) */
+      --flash-duration: 1.8s;   /* vita portal-ljuset */
+      --portal-cyan: rgba(0,255,255,.15); /* cyan-ljuskant i fade */
+      --flash-blur-min: 10px;   /* start-blur för ljuset */
+      --flash-blur-max: 20px;   /* slut-blur för ljuset */
+      --flash-scale-start: .2;  /* startskala */
+      --flash-scale-end:   3;   /* slutskala (större = mer “whiten out”) */
 
-    .start-btn {
-      background:linear-gradient(90deg,#00f0ff,#0077ff);
-      color:#fff;
-      font-size:1.2rem;
-      padding:18px 50px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      text-transform:uppercase;
-      font-weight:600;
-      letter-spacing:2px;
-      box-shadow:0 0 25px rgba(0,255,255,.3);
-      transition:transform .3s,box-shadow .3s;
-      z-index:2;
-    }
-    .start-btn:hover{
-      transform:scale(1.05);
-      box-shadow:0 0 40px rgba(0,255,255,.8);
+      /* Layout */
+      --top-space: 12vh;        /* hur långt ner från toppen */
+      --title-size-min: 2.5rem; /* min rubrikstorlek */
+      --title-size-fluid: 8vw;  /* flytande del (anpassar efter viewport) */
+      --title-size-max: 6rem;   /* max rubrikstorlek */
+      --max-width: 920px;       /* maxbredd för innehållet */
     }
 
-    /* Fade & Flash */
-    .fade-overlay, .flash-overlay {
-      position:fixed;
-      top:0;left:0;width:100%;height:100%;
-      pointer-events:none;
-      opacity:0;
-      z-index:5;
+    /* =========================================================
+       2) BASLAYOUT
+       ========================================================= */
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:flex-start; overflow:hidden;
+      padding-top: var(--top-space);
+    }
+    main{ width:min(var(--max-width),92vw); text-align:center; }
+
+    /* =========================================================
+       3) RUBRIK
+       ========================================================= */
+    h1{
+      font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 60px;
+      text-shadow: 0 0 25px var(--title-glow);
     }
 
-    .fade-overlay {
-      background:radial-gradient(circle at center,
-        rgba(0,255,255,.15),
-        rgba(0,0,0,.9) 80%);
-      transition:opacity 0.9s ease-out; /* snabbare fade */
+    /* =========================================================
+       4) KNAPP
+       ========================================================= */
+    .start-btn{
+      display:inline-block;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      color: var(--btn-text);
+      background: linear-gradient(90deg, var(--btn-grad-from), var(--btn-grad-to));
+      border: none;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: var(--btn-letterspace);
+      font-size: var(--btn-fontsize);
+      box-shadow: var(--btn-shadow);
+      transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+      will-change: transform, box-shadow, filter;
+      z-index: 2;
+    }
+    .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
+    .start-btn:active{ transform: scale(.98) }
+
+    /* =========================================================
+       5) PORTAL-OVERLAYS (fade + vit flash)
+       ========================================================= */
+    .fade-overlay, .flash-overlay{
+      position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
     }
 
-    .flash-overlay {
-      background:radial-gradient(circle at center,
-        rgba(255,255,255,1) 0%,
-        rgba(255,255,255,.6) 40%,
-        rgba(255,255,255,0) 80%);
-      transform:scale(0.2);
+    /* Mörk → cyan vignette-fade (bakgrund) */
+    .fade-overlay{
+      background: radial-gradient(circle at center,
+                  var(--portal-cyan),
+                  rgba(0,0,0,.9) 80%);
+      transition: opacity var(--fade-duration) ease-out;
+    }
+    .fade-active{ opacity:1 }
+
+    /* Vitt portal-ljus som expanderar mjukt */
+    .flash-overlay{
+      background: radial-gradient(circle at center,
+                  rgba(255,255,255,1) 0%,
+                  rgba(255,255,255,.6) 40%,
+                  rgba(255,255,255,0) 80%);
+      transform: scale(var(--flash-scale-start));
+      filter: blur(var(--flash-blur-min));
+    }
+    .flash-active{
+      animation: flashExpand var(--flash-duration)
+                 cubic-bezier(.25,1,.3,1) forwards;
+    }
+    @keyframes flashExpand{
+      0%   { opacity:0; transform:scale(var(--flash-scale-start)); filter:blur(var(--flash-blur-min)); }
+      25%  { opacity:.6; transform:scale(1.1); filter:blur(2px); }
+      55%  { opacity:1;  transform:scale(1.9); filter:blur(6px); }
+      100% { opacity:1;  transform:scale(var(--flash-scale-end)); filter:blur(var(--flash-blur-max)); }
     }
 
-    .fade-active {opacity:1;}
-    .flash-active {
-      animation:flashExpand 1.8s cubic-bezier(0.25, 1, 0.3, 1) forwards; /* snabbare & smooth */
-    }
-
-    @keyframes flashExpand {
-      0%   {opacity:0; transform:scale(0.2); filter:blur(10px);}
-      25%  {opacity:0.6; transform:scale(1.1); filter:blur(2px);}
-      55%  {opacity:1; transform:scale(1.9); filter:blur(6px);}
-      100% {opacity:1; transform:scale(3); filter:blur(20px);}
-    }
+    /* (Valfritt) liten “hint”-text under knappen */
+    .hint{ margin-top:14px; opacity:.65; font-size:.9rem }
   </style>
 </head>
 <body>
-  <h1>Lvluplife</h1>
-  <button class="start-btn" onclick="enterPortal()">Start your journey</button>
+  <main>
+    <!-- 6) RUBRIK – ändra texten här -->
+    <h1>Lvluplife</h1>
 
-  <div class="fade-overlay" id="fadeLayer"></div>
+    <!-- 7) KNAPP – ändra texten och målsidan i JS-funktionen nedan -->
+    <button class="start-btn" onclick="enterPortal()">Start your journey</button>
+    <!-- <p class="hint">Your journey starts here…</p> -->
+  </main>
+
+  <!-- 8) OVERLAYS för portaleffekten -->
+  <div class="fade-overlay"  id="fadeLayer"></div>
   <div class="flash-overlay" id="flashLayer"></div>
 
+  <!-- 9) LJUD – byt src till egen fil om du vill. Volym & timing styrs i JS -->
   <audio id="portalSound" preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const fade = document.getElementById('fadeLayer');
+    /* =========================================================
+       10) PORTAL-LOGIK
+          – ändra NAVIGATIONS-URL, tider, volym här
+       ========================================================= */
+    const fade  = document.getElementById('fadeLayer');
     const flash = document.getElementById('flashLayer');
     const sound = document.getElementById('portalSound');
+
+    // Justera navigationen (målsida), samt buffert före navigation
+    const NEXT_URL = "journey.html";   // <- byt målsida här
+    const NAV_DELAY_MS = 1900;         // ska vanligtvis ≈ var(--flash-duration) i ms
+
+    // Ljud-kontroller
+    const SOUND_ENABLED = true;        // sätt false om du vill testa utan ljud
+    const SOUND_VOLUME  = 0.9;         // 0.0–1.0
 
     function resetPortal(){
       fade.classList.remove('fade-active');
       flash.classList.remove('flash-active');
     }
 
+    // Fix för bakåtknapp: nollställ overlays när sidan visas igen
     window.addEventListener('pageshow', resetPortal);
 
-    async function enterPortal() {
+    async function enterPortal(){
       resetPortal();
-      sound.currentTime = 0;
-      sound.volume = 0.9;
-      try { await sound.play(); } catch(e) {}
 
+      // Starta ljud direkt vid klick (iOS kräver user gesture)
+      if (SOUND_ENABLED){
+        try{
+          sound.currentTime = 0;
+          sound.volume = SOUND_VOLUME;
+          await sound.play();
+        }catch(e){ /* om ljud blockas – fortsätt ändå */ }
+      }
+
+      // Starta visuella effekter
       fade.classList.add('fade-active');
       flash.classList.add('flash-active');
 
-      // navigera lite tidigare eftersom animationen är snabbare
-      setTimeout(() => {
-        window.location.href = "journey.html";
-      }, 1900);
+      // Navigera när animationen är klar
+      setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
     }
   </script>
 </body>
