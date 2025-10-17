@@ -2,138 +2,117 @@
    ENKLA ENDA VÄRDEN ATT ÄNDRA
    ========================================== */
 :root{
-   :root{
-  /* ...dina befintliga variabler... */
-  --mobile-scale: 0.45; /* hur mycket vi skalar ner rubrik & UI på mobil (0.45 = 45%) */
-}
-  --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* vanlig, modern font */
-  --text-size: 6rem;              /* rubrikstorlek */
-  --text-color: #ffffff;          /* textfärg (och linjefärg) */
-  --top-offset: 10vh;             /* avstånd från toppen */
-  --glow: 5px;                    /* text-glow (0px = av). Öka t.ex. till 18px vid behov */
-  --line-width: 240px;            /* linjens längd */
-  --line-height: 2px;             /* linjens tjocklek */
-  --line-gap: 12px;               /* avstånd mellan rubrik och linje */
+  --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --text-color: #ffffff;         /* textfärg (och linjefärg) */
+  --text-glow: 0px;              /* text-glow (0px = av, t.ex. 10px för svagt glow) */
+  --fade-duration: 1.2s;         /* hur snabbt sidan tonar in */
+
+  /* Knappens färger */
+  --button-gradient-from: #0a3d91;   /* mörkblå bas */
+  --button-gradient-to: #1264e3;     /* ljusare blå ton */
+  --button-text: #ffffff;            /* textfärg */
 }
 
 /* ==========================================
    BASLAYOUT
    ========================================== */
 * { box-sizing: border-box; }
-html, body { height: 100%; }
-body{
+html, body {
   margin: 0;
+  height: 100%;
   background: #000;
   color: var(--text-color);
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   display: flex;
-  justify-content: center;     /* mitten horisontellt */
-  align-items: flex-start;     /* toppen vertikalt */
+  justify-content: center;
+  align-items: flex-start;
+  animation: fadeIn var(--fade-duration) ease-in-out;
 }
 
-.wrap{
-  margin-top: var(--top-offset);
+.wrap {
   text-align: center;
+  margin-top: 12vh;
+  width: 90%;
+  max-width: 700px;
+  opacity: 0;
+  animation: fadeInContent var(--fade-duration) ease-in-out forwards;
+  animation-delay: 0.3s;
 }
 
 /* ==========================================
    TITEL
    ========================================== */
-h1{
+h1 {
   margin: 0;
-  font-size: var(--text-size);
+  font-size: clamp(2rem, 10vw, 6rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-shadow: 0 0 var(--glow) currentColor;
+  text-shadow: 0 0 var(--text-glow) currentColor;
 }
 
 /* ==========================================
-   ENKEL LINJE UNDER TEXTEN
+   LINJE UNDER TEXTEN
    ========================================== */
-.shimmer-line{
-  width: var(--line-width);
-  height: var(--line-height);
-  margin: var(--line-gap) auto 0;
+.shimmer-line {
+  width: 50%;
+  height: 0.25vh;
+  min-height: 2px;
   background: var(--text-color);
   border-radius: 999px;
   opacity: 0.8;
-}
-/* ==========================================
-   KNAPP – enkel att justera
-   ========================================== */
-:root {
-  --button-bg: #00ffff;      /* knappens färg */
-  --button-text: #000000;    /* textfärg */
-  --button-size: 1.2rem;     /* textstorlek */
-  --button-padding-y: 14px;  /* vertikal padding */
-  --button-padding-x: 36px;  /* horisontell padding */
-  --button-radius: 40px;     /* rundning */
-  --button-hover-brightness: 1.3; /* hur mycket ljusare vid hover */
+  margin: 1.5vh auto 0;
 }
 
+/* ==========================================
+   KNAPP – gradient i mörkare blå nyanser
+   ========================================== */
 .main-button {
   display: inline-block;
-  margin-top: 30px;
+  margin-top: 4vh;
   font-family: var(--font);
-  font-size: var(--button-size);
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
   color: var(--button-text);
-  background-color: var(--button-bg);
-  padding: var(--button-padding-y) var(--button-padding-x);
+  background: linear-gradient(135deg, var(--button-gradient-from), var(--button-gradient-to));
+  padding: 1em 2.5em;
   border: none;
-  border-radius: var(--button-radius);
+  border-radius: 999px;
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 0 10px rgba(0,255,255,0.4);
+  box-shadow: 0 0 1.2em rgba(18, 100, 227, 0.35);
 }
 
 .main-button:hover {
-  filter: brightness(var(--button-hover-brightness));
+  filter: brightness(1.15);
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0,255,255,0.6);
+  box-shadow: 0 0 2em rgba(18, 100, 227, 0.55);
 }
 
 .main-button:active {
   transform: scale(0.98);
-  box-shadow: 0 0 10px rgba(0,255,255,0.8);
+  box-shadow: 0 0 1em rgba(18, 100, 227, 0.8);
 }
-/* =========================
-   RESPONSIV JUSTERING (mobil)
-   ========================= */
+
+/* ==========================================
+   ANIMATIONER
+   ========================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInContent {
+  from { opacity: 0; transform: translateY(2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================
+   RESPONSIVITET
+   ========================================== */
 @media (max-width: 600px) {
-
-  .wrap{
-    /* lite mindre top-offset på mobil så allt ryms snyggt */
-    margin-top: max(6vh, calc(var(--top-offset) * 0.6));
-    padding: 0 16px; /* lite horisontell luft på små skärmar */
-  }
-
-  h1{
-    /* skala rubriken utifrån ditt enda desktopvärde */
-    font-size: calc(var(--text-size) * var(--mobile-scale));
-    letter-spacing: 0.08em; /* lite tajtare så det inte hoppar utanför */
-  }
-
-  .shimmer-line{
-    /* gör linjen proportionell på mobil – följer viewportbredd */
-    width: 60vw;              /* vill du så kan du ändra till 70vw etc. */
-    height: max(2px, calc(var(--line-height) * 0.9));
-    margin-top: max(8px, calc(var(--line-gap) * 0.8));
-  }
-
-  .main-button{
-    /* skala knappens text & padding så den känns lagom stor på mobil */
-    font-size: calc(var(--button-size) * 0.95);
-    padding: calc(var(--button-padding-y) * 0.9) calc(var(--button-padding-x) * 0.85);
-    border-radius: max(20px, calc(var(--button-radius) * 0.8));
-    margin-top: 20px;
-  }
-
-  /* ta bort hover-zoom på touch-enheter så det inte känns “studsigt” */
-  @media (hover: none){
-    .main-button:hover{ transform: none; }
-  }
+  .wrap { margin-top: 10vh; }
+  .shimmer-line { width: 70%; }
 }
