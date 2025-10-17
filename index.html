@@ -2,6 +2,13 @@
 <html lang="sv">
 <head>
   <meta charset="utf-8" />
+  <script>
+  // Automatiskt redirect mellan www och icke-www
+  const host = window.location.hostname;
+  if (host === "www.lvluplife.org") {
+    window.location.href = "https://lvluplife.org" + window.location.pathname;
+  }
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife – Start</title>
 
