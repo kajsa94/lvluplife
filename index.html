@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lvluplife</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
       height: 100%;
@@ -32,7 +28,7 @@
       color: #fff;
       text-transform: uppercase;
       margin-bottom: 60px;
-      text-shadow: 0 0 15px rgba(0, 255, 200, 0.4);
+      text-shadow: 0 0 25px rgba(0, 255, 200, 0.5);
     }
 
     .start-btn {
@@ -58,42 +54,81 @@
       background: linear-gradient(90deg, #00ffee, #00aaff);
     }
 
-    .start-btn:active {
-      transform: scale(0.98);
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    }
-
-    /* Fade-overlay för portal-effekt */
+    /* PORTAL OVERLAY */
     .fade-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 1));
-      opacity: 0;
       pointer-events: none;
-      transition: opacity 1.2s ease;
+      background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.95));
+      opacity: 0;
+      transition: opacity 2.5s ease;
       z-index: 5;
     }
 
+    /* Explosion / ljuseffekt */
+    .portal-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 60%, rgba(255,255,255,0) 100%);
+      opacity: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Aktiveras vid klick */
     .fade-active {
       opacity: 1;
+    }
+
+    .flash-active {
+      animation: flashExpand 2s forwards;
+    }
+
+    @keyframes flashExpand {
+      0% { opacity: 0; transform: scale(0.2); filter: blur(10px); }
+      40% { opacity: 0.8; transform: scale(1.2); filter: blur(0); }
+      70% { opacity: 1; transform: scale(2); filter: blur(10px); }
+      100% { opacity: 1; transform: scale(3); filter: blur(40px); }
     }
   </style>
 </head>
 <body>
   <h1>Lvluplife</h1>
   <button class="start-btn" onclick="enterPortal()">Start your journey</button>
-  <div class="fade-overlay" id="portalFade"></div>
+
+  <!-- Portaleffekter -->
+  <div class="fade-overlay" id="fadeLayer"></div>
+  <div class="portal-flash" id="flashLayer"></div>
+
+  <!-- Ljud (kan bytas ut till eget ljud) -->
+  <audio id="portalSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_67c3e4f4a1.mp3?filename=deep-portal-whoosh-105397.mp3"></audio>
 
   <script>
     function enterPortal() {
-      const fade = document.getElementById('portalFade');
+      const fade = document.getElementById('fadeLayer');
+      const flash = document.getElementById('flashLayer');
+      const sound = document.getElementById('portalSound');
+
+      // Start fade och ljud
       fade.classList.add('fade-active');
+      sound.volume = 0.6;
+      sound.play();
+
+      // Vänta lite innan flashen startar (för mer dramatisk effekt)
       setTimeout(() => {
-        window.location.href = "journey.html"; // ändra till din nästa sida
-      }, 1200); // matchar fade-durationen
+        flash.classList.add('flash-active');
+      }, 1000);
+
+      // Gå vidare när animationen är klar
+      setTimeout(() => {
+        window.location.href = "journey.html";
+      }, 2500);
     }
   </script>
 </body>
