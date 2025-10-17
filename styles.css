@@ -1,39 +1,78 @@
-/* === BAS === */
-body {
+/* ==========================================
+   ENKLA ENDA VÄRDEN ATT ÄNDRA
+   ========================================== */
+:root{
+  --font: 'Orbitron', sans-serif; /* typsnitt */
+  --text-size: 6rem;              /* rubrikstorlek */
+  --text-color: #ffffff;          /* textfärg (och linjefärg) */
+  --top-offset: 10vh;             /* avstånd från toppen */
+  --glow: 0px;                    /* text-glow (0px = av). Öka t.ex. till 18px vid behov */
+
+  --line-width: 240px;            /* linjens längd */
+  --line-height: 2px;             /* linjens tjocklek */
+  --line-gap: 12px;               /* avstånd mellan rubrik och linje */
+  --shimmer-intensity: 14px;      /* styr hur starkt det glimrar när det händer */
+  --shimmer-period: 8s;           /* hur sällan glimret sker (större = mer sällan) */
+}
+
+/* ==========================================
+   BASLAYOUT
+   ========================================== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
   margin: 0;
-  height: 100vh;
+  background: #000;
+  color: var(--text-color);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   display: flex;
-  justify-content: center;     /* horisontell position */
-  align-items: flex-start;     /* vertikal position (ändra till center om du vill) */
-  background-color: #000;      /* bakgrundsfärg */
-  overflow: hidden;
+  justify-content: center;     /* mitten horisontellt */
+  align-items: flex-start;     /* toppen vertikalt */
 }
 
-/* === TEXT === */
-h1 {
-  margin-top: 2vh;             /* hur högt upp texten ligger */
-  font-family: 'Orbitron', sans-serif;
-  font-size: 6rem; /* ändra det här värdet för att göra texten större eller mindre */
-  color: #FFFFFF;                 /* textfärg */
-  text-transform: uppercase;
-  letter-spacing: 4px;
+.wrap{
+  margin-top: var(--top-offset);
   text-align: center;
-  transition: all 0.3s ease;
-
-  /* Glow-effekt – justera färg, intensitet & blur här */
-  text-shadow:
-    0 0 5px #FFFFFF,
-    0 0 5px #FFFFFF,
-    0 0 5px #FFFFFF,
-    0 0 5px #FFFFFF;
 }
 
-/* === HOVER EFFEKT (frivillig) === */
-h1:hover {
-  text-shadow:
-    0 0 10px #FFFFFF,
-    0 0 10px #FFFFFF,
-    0 0 10px #FFFFFF,
-    0 0 10px #FFFFFF;
-  transform: scale(1.03);
+/* ==========================================
+   TITEL
+   ========================================== */
+h1{
+  margin: 0;
+  font-size: var(--text-size);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* Glow styrs av ETT värde: --glow (0px = ingen glow) */
+  text-shadow: 0 0 var(--glow) currentColor;
+}
+
+/* ==========================================
+   LINJE MED SUBTILT SHIMMER
+   ========================================== */
+.shimmer-line{
+  width: var(--line-width);
+  height: var(--line-height);
+  margin: var(--line-gap) auto 0;
+  background: var(--text-color);
+  border-radius: 999px;
+  opacity: 0.35; /* svagt i utgångsläget */
+  animation: shimmerPulse var(--shimmer-period) infinite ease-in-out;
+}
+
+@keyframes shimmerPulse{
+  0%, 90%, 100%{
+    opacity: 0.25;
+    box-shadow: none;
+    filter: none;
+  }
+  95%{
+    opacity: 1;
+    box-shadow:
+      0 0 var(--shimmer-intensity) var(--text-color),
+      0 0 calc(var(--shimmer-intensity) * 2) var(--text-color);
+    filter: brightness(1.15);
+  }
 }
