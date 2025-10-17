@@ -31,9 +31,9 @@ h1 {
 /* === HOVER EFFEKT (frivillig) === */
 h1:hover {
   text-shadow:
-    0 0 10px #fff,
-    0 0 20px #0ff,
-    0 0 40px #0ff,
-    0 0 80px #0ff;
+    0 0 10px #FFFFFF,
+    0 0 20px #FFFFFF,
+    0 0 40px #FFFFFF,
+    0 0 80px #FFFFFF;
   transform: scale(1.03);
 }
