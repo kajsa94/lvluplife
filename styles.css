@@ -127,4 +127,81 @@ h1{
 @keyframes veilPulse{
   0%{opacity:0;transform:scale(.96);}
   35%{opacity:var(--veil-peak);transform:scale(1.02);}
-  70%
+  70%{opacity:.65;transform:scale(1.06);}
+  100%{opacity:0;transform:scale(1.10);}
+}
+
+/* Dimlager */
+.mist{
+  position:absolute; inset:-15vh -15vw;
+  filter: blur(calc(var(--mist-blur)*var(--dream-boost)));
+  opacity:0; transform:scale(.95); mix-blend-mode:screen;
+}
+.mist-1{
+  background:
+    radial-gradient(60vmax 60vmax at 40% 45%, var(--mist1) 0%, transparent 60%),
+    radial-gradient(40vmax 40vmax at 70% 60%, var(--mist2) 0%, transparent 70%);
+  animation:
+    mistRise calc(var(--dream-total-ms)*1ms) var(--mist-ease) forwards,
+    breathe calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+}
+.mist-2{
+  background:
+    radial-gradient(70vmax 70vmax at 60% 35%, var(--mist2) 0%, transparent 65%),
+    radial-gradient(50vmax 50vmax at 30% 65%, var(--mist3) 0%, transparent 75%);
+  animation:
+    mistDrift calc(var(--dream-total-ms)*1ms) var(--mist-ease) forwards,
+    breatheSlow calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+}
+.mist-3{
+  background:
+    radial-gradient(55vmax 55vmax at 50% 50%, var(--mist1) 0%, transparent 60%);
+  animation:
+    mistPulse calc(var(--dream-total-ms)*1ms) var(--mist-ease) forwards,
+    breathe calc(var(--dream-total-ms)*1ms) ease-in-out infinite;
+}
+
+/* Keyframes */
+@keyframes mistRise{
+  0%{opacity:0;transform:scale(.92) translateY(12px);}
+  38%{opacity:.95;transform:scale(1.01) translateY(0);}
+  100%{opacity:0;transform:scale(1.06) translateY(-8px);}
+}
+@keyframes mistDrift{
+  0%{opacity:0;transform:scale(.94) translateX(-12px);}
+  32%{opacity:.80;transform:scale(1.00) translateX(0);}
+  100%{opacity:0;transform:scale(1.07) translateX(10px);}
+}
+@keyframes mistPulse{
+  0%{opacity:0;transform:scale(.90);}
+  52%{opacity:.70;transform:scale(1.02);}
+  100%{opacity:0;transform:scale(1.07);}
+}
+@keyframes breathe{
+  0%,100%{filter:blur(calc(var(--mist-blur)*var(--dream-boost)));}
+  50%{filter:blur(calc((var(--mist-blur)+6px)*var(--dream-boost)));}
+}
+@keyframes breatheSlow{
+  0%,100%{opacity:.95;}
+  50%{opacity:calc(.95 - var(--whisper-breath-amp));}
+}
+
+/* Whisper */
+.whisper{
+  position:absolute; inset:0; z-index:9999; display:grid; place-items:center;
+  pointer-events:none; opacity:0; padding:0 16px; text-align:center; mix-blend-mode:multiply;
+  transition: opacity calc(var(--whisper-in-ms)*1ms) var(--mist-ease);
+}
+.whisper.show{opacity:1;}
+.whisper.hide{opacity:0;transition:opacity calc(var(--whisper-out-ms)*1ms) var(--mist-ease);}
+.whisper .line{
+  font: var(--whisper-weight) var(--whisper-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+  letter-spacing: var(--whisper-letter); color: var(--whisper-color);
+  white-space: pre-wrap;
+}
+.char{
+  display:inline-block; opacity:0; transform:translateY(var(--whisper-char-translate));
+  filter:blur(2px);
+  transition:opacity .6s var(--mist-ease), transform .6s var(--mist-ease), filter .6s var(--mist-ease);
+}
+.char.on{opacity:1;transform:translateY(0);filter:blur(0);}
