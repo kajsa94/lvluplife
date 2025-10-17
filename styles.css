@@ -2,6 +2,10 @@
    ENKLA ENDA VÄRDEN ATT ÄNDRA
    ========================================== */
 :root{
+   :root{
+  /* ...dina befintliga variabler... */
+  --mobile-scale: 0.45; /* hur mycket vi skalar ner rubrik & UI på mobil (0.45 = 45%) */
+}
   --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* vanlig, modern font */
   --text-size: 6rem;              /* rubrikstorlek */
   --text-color: #ffffff;          /* textfärg (och linjefärg) */
@@ -96,4 +100,40 @@ h1{
   transform: scale(0.98);
   box-shadow: 0 0 10px rgba(0,255,255,0.8);
 }
+/* =========================
+   RESPONSIV JUSTERING (mobil)
+   ========================= */
+@media (max-width: 600px) {
 
+  .wrap{
+    /* lite mindre top-offset på mobil så allt ryms snyggt */
+    margin-top: max(6vh, calc(var(--top-offset) * 0.6));
+    padding: 0 16px; /* lite horisontell luft på små skärmar */
+  }
+
+  h1{
+    /* skala rubriken utifrån ditt enda desktopvärde */
+    font-size: calc(var(--text-size) * var(--mobile-scale));
+    letter-spacing: 0.08em; /* lite tajtare så det inte hoppar utanför */
+  }
+
+  .shimmer-line{
+    /* gör linjen proportionell på mobil – följer viewportbredd */
+    width: 60vw;              /* vill du så kan du ändra till 70vw etc. */
+    height: max(2px, calc(var(--line-height) * 0.9));
+    margin-top: max(8px, calc(var(--line-gap) * 0.8));
+  }
+
+  .main-button{
+    /* skala knappens text & padding så den känns lagom stor på mobil */
+    font-size: calc(var(--button-size) * 0.95);
+    padding: calc(var(--button-padding-y) * 0.9) calc(var(--button-padding-x) * 0.85);
+    border-radius: max(20px, calc(var(--button-radius) * 0.8));
+    margin-top: 20px;
+  }
+
+  /* ta bort hover-zoom på touch-enheter så det inte känns “studsigt” */
+  @media (hover: none){
+    .main-button:hover{ transform: none; }
+  }
+}
