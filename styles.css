@@ -4,7 +4,7 @@ body {
   height: 100vh;
   display: flex;
   justify-content: center;     /* horisontell position */
-  align-items: center;     /* vertikal position (ändra till center om du vill) */
+  align-items: flex-start;     /* vertikal position (ändra till center om du vill) */
   background-color: #000;      /* bakgrundsfärg */
   overflow: hidden;
 }
