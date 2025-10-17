@@ -28,7 +28,7 @@
       --divider-opacity: .5;
       --divider-bottom-gap: 16px;      /* avstånd streck → subtext */
 
-      /* Subtext (“This is a tool for the one who needs the extra HP”) */
+      /* Subtext */
       --subtext-size: 1rem;
       --subtext-opacity: .6;
       --subtext-letterspace: .05em;
@@ -50,19 +50,21 @@
       --hint-opacity: .6;
       --hint-top-gap: 16px;
 
-      /* Portal-effekt (bakgrundsöverlägg) */
+      /* Portal-effekt */
       --portal-cyan: rgba(0,255,255,.15);
-      --fade-duration: 0.40s;
-      --flash-duration: 0.90s;
+      --fade-duration: 0.50s;  /* lite längre fade för smoothness */
+      --flash-duration: 1.20s; /* SYNKAS även från JS automatiskt */
 
-      /* ========= NYTT: Mellantext i portalen ========= */
-      --interstitial-text: "do you have what it takes?";
+      /* Mellantext i portalen */
+      --interstitial-text: "Do you have what it takes?";
       --interstitial-size: clamp(18px, 3.2vw, 28px);
       --interstitial-color: rgba(0,0,0,0.85);
       --interstitial-weight: 800;
       --interstitial-letter: .02em;
-      --text-in-duration: 300ms;
-      --text-out-duration: 250ms;
+
+      /* Lugnare/lenare animationer */
+      --text-in-duration: 600ms;
+      --text-out-duration: 500ms;
       --interstitial-lift-in: 6px;     /* hur långt texten glider in */
       --interstitial-lift-out: -4px;   /* hur långt texten glider ut */
     }
@@ -104,7 +106,7 @@
     }
 
     /* =========================================================
-       (4) SUBTEXT ("This is a tool for the one who needs the extra HP")
+       (4) SUBTEXT
        ========================================================= */
     .subtext{
       font-size: var(--subtext-size);
@@ -186,7 +188,7 @@
     }
 
     /* =========================================================
-       (8) NYTT: PORTAL-MELLANTEXT (centrerad över allt)
+       (8) PORTAL-MELLANTEXT (centrerad över allt)
        ========================================================= */
     .portal-text{
       position: fixed; inset: 0; z-index: 6; pointer-events: none;
@@ -194,9 +196,8 @@
       opacity: 0;
       transform: translateY(var(--interstitial-lift-in));
       transition:
-        opacity var(--text-in-duration) ease,
-        transform var(--text-in-duration) ease;
-      /* gör att texten “smälter” in i ljuset när det blir vitt */
+        opacity var(--text-in-duration) cubic-bezier(.25,.8,.25,1),
+        transform var(--text-in-duration) cubic-bezier(.25,.8,.25,1);
       mix-blend-mode: multiply;
       padding: 0 16px;
       text-align: center;
@@ -209,8 +210,8 @@
       opacity: 0;
       transform: translateY(var(--interstitial-lift-out));
       transition:
-        opacity var(--text-out-duration) ease,
-        transform var(--text-out-duration) ease;
+        opacity var(--text-out-duration) cubic-bezier(.25,.8,.25,1),
+        transform var(--text-out-duration) cubic-bezier(.25,.8,.25,1);
     }
     .portal-text span{
       font: var(--interstitial-weight) var(--interstitial-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
@@ -227,27 +228,37 @@
     <div class="divider"></div>
 
     <!-- SUBTEXT: mellan strecket och knappen -->
-    <p class="subtext">This is a tool for the one who needs extra HP</p>
+    <p class="subtext">This is a tool for the one who needs the extra HP</p>
 
     <!-- KNAPP -->
     <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
 
     <!-- HINT under knappen (kan tas bort om du vill) -->
-    <p class="hint"></p>
+    <p class="hint">Do you have what it takes?</p>
   </main>
 
   <!-- PORTAL-LAGER -->
   <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
   <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
-  <!-- NYTT: MELLANTEXT-LAGER -->
+  <!-- MELLANTEXT-LAGER -->
   <div class="portal-text" id="portalText" aria-hidden="true"><span></span></div>
 
-  <!-- SCRIPT – portal + back-knapp-fix + interstitial text -->
+  <!-- SCRIPT – portal + back-knapp-fix + interstitial text (synkade tider) -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      /* =======================
+         Centrala tider (ändra bara här)
+         ======================= */
       const NEXT_URL = 'journey.html';
-      const NAV_DELAY_MS = 900;          // totala tiden innan navigation
-      const TEXT_OUT_OFFSET = 260;       // hur många ms före navigering texten ska börja tona ut
+      const NAV_DELAY_MS = 1200;     // total längd på sekvensen (matchar flash)
+      const SHOW_DELAY_FRACTION = 0.25;  // text visas efter 25% av tiden
+      const HIDE_BEFORE_END_MS   = 400;  // text börjar tona ut X ms före navigering
+
+      // Beräkna tider utifrån NAV_DELAY_MS
+      const SHOW_DELAY_MS = Math.round(NAV_DELAY_MS * SHOW_DELAY_FRACTION);
+
+      // Synka CSS-variabeln --flash-duration automatiskt
+      document.documentElement.style.setProperty('--flash-duration', (NAV_DELAY_MS/1000)+'s');
 
       const startBtn = document.getElementById('startBtn');
       const fade = document.getElementById('fadeLayer');
@@ -256,7 +267,7 @@
       const portalTextSpan = portalText.querySelector('span');
 
       let clicked = false;
-      let navT1 = null, navT2 = null, textOutT = null;
+      let navT1 = null, navT2 = null, textOutT = null, showT = null;
 
       function resetPortal(){
         fade.classList.remove('fade-active');
@@ -269,6 +280,7 @@
         if (navT1){ clearTimeout(navT1); navT1 = null; }
         if (navT2){ clearTimeout(navT2); navT2 = null; }
         if (textOutT){ clearTimeout(textOutT); textOutT = null; }
+        if (showT){ clearTimeout(showT); showT = null; }
       }
 
       window.addEventListener('pageshow', resetState);
@@ -289,25 +301,28 @@
         clicked = true;
 
         // Sätt texten från CSS-variabeln (fallback om tom)
-        portalTextSpan.textContent = getCSSVar('--interstitial-text') || 'do you have what it takes?';
+        portalTextSpan.textContent = getCSSVar('--interstitial-text') || 'Do you have what it takes?';
 
         resetPortal();
         await nextFrame();
 
-        // Visa överlägg + text
+        // 1) Starta glow/flash direkt
         fade.classList.add('fade-active');
         flash.classList.add('flash-active');
-        portalText.classList.add('show');
 
-        // Tona ut texten lite innan navigering (så det känns sekvenserat)
-        const outWhen = Math.max(0, NAV_DELAY_MS - TEXT_OUT_OFFSET);
+        // 2) Visa texten senare för dramatik
+        showT = setTimeout(() => portalText.classList.add('show'), SHOW_DELAY_MS);
+
+        // 3) Tona ut texten före navigering (mjuk exit)
+        const outWhen = Math.max(0, NAV_DELAY_MS - HIDE_BEFORE_END_MS);
         textOutT = setTimeout(() => {
-          portalText.classList.add('hide'); // transition styrs i CSS
+          portalText.classList.add('hide');
         }, outWhen);
 
-        // Navigera när effekten är klar
+        // 4) Navigera när sekvensen är klar (matchar flash-duration)
         navT1 = setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
-        // extra safety
+
+        // extra safety om något blockar
         navT2 = setTimeout(() => {
           if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
         }, NAV_DELAY_MS + 500);
@@ -321,3 +336,4 @@
   </script>
 </body>
 </html>
+
