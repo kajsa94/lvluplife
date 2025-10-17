@@ -50,10 +50,21 @@
       --hint-opacity: .6;
       --hint-top-gap: 16px;
 
-      /* Portal-effekt */
+      /* Portal-effekt (bakgrundsöverlägg) */
       --portal-cyan: rgba(0,255,255,.15);
       --fade-duration: 0.40s;
       --flash-duration: 0.90s;
+
+      /* ========= NYTT: Mellantext i portalen ========= */
+      --interstitial-text: "do you have what it takes?";
+      --interstitial-size: clamp(18px, 3.2vw, 28px);
+      --interstitial-color: rgba(0,0,0,0.85);
+      --interstitial-weight: 800;
+      --interstitial-letter: .02em;
+      --text-in-duration: 300ms;
+      --text-out-duration: 250ms;
+      --interstitial-lift-in: 6px;     /* hur långt texten glider in */
+      --interstitial-lift-out: -4px;   /* hur långt texten glider ut */
     }
 
     /* =========================================================
@@ -173,6 +184,40 @@
       60%  { clip-path: circle(90% at 50% 50%); opacity: .95; transform: scale(1.08); }
       100% { clip-path: circle(140% at 50% 50%); opacity: 1;   transform: scale(1.10); }
     }
+
+    /* =========================================================
+       (8) NYTT: PORTAL-MELLANTEXT (centrerad över allt)
+       ========================================================= */
+    .portal-text{
+      position: fixed; inset: 0; z-index: 6; pointer-events: none;
+      display: grid; place-items: center;
+      opacity: 0;
+      transform: translateY(var(--interstitial-lift-in));
+      transition:
+        opacity var(--text-in-duration) ease,
+        transform var(--text-in-duration) ease;
+      /* gör att texten “smälter” in i ljuset när det blir vitt */
+      mix-blend-mode: multiply;
+      padding: 0 16px;
+      text-align: center;
+    }
+    .portal-text.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .portal-text.hide{
+      opacity: 0;
+      transform: translateY(var(--interstitial-lift-out));
+      transition:
+        opacity var(--text-out-duration) ease,
+        transform var(--text-out-duration) ease;
+    }
+    .portal-text span{
+      font: var(--interstitial-weight) var(--interstitial-size)/1.15 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      letter-spacing: var(--interstitial-letter);
+      color: var(--interstitial-color);
+      text-transform: none;
+    }
   </style>
 </head>
 <body>
@@ -187,36 +232,43 @@
     <!-- KNAPP -->
     <a id="startBtn" class="start-btn" href="journey.html" role="button">Start your journey</a>
 
-    <!-- HINT under knappen -->
+    <!-- HINT under knappen (kan tas bort om du vill) -->
     <p class="hint">Do you have what it takes?</p>
   </main>
 
   <!-- PORTAL-LAGER -->
   <div class="fade-overlay"  id="fadeLayer"  aria-hidden="true"></div>
   <div class="flash-overlay" id="flashLayer" aria-hidden="true"></div>
+  <!-- NYTT: MELLANTEXT-LAGER -->
+  <div class="portal-text" id="portalText" aria-hidden="true"><span></span></div>
 
-  <!-- SCRIPT – portal + back-knapp-fix -->
+  <!-- SCRIPT – portal + back-knapp-fix + interstitial text -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const NEXT_URL = 'journey.html';
-      const NAV_DELAY_MS = 900;
+      const NAV_DELAY_MS = 900;          // totala tiden innan navigation
+      const TEXT_OUT_OFFSET = 260;       // hur många ms före navigering texten ska börja tona ut
 
       const startBtn = document.getElementById('startBtn');
       const fade = document.getElementById('fadeLayer');
       const flash = document.getElementById('flashLayer');
+      const portalText = document.getElementById('portalText');
+      const portalTextSpan = portalText.querySelector('span');
 
       let clicked = false;
-      let navT1 = null, navT2 = null;
+      let navT1 = null, navT2 = null, textOutT = null;
 
       function resetPortal(){
         fade.classList.remove('fade-active');
         flash.classList.remove('flash-active');
+        portalText.classList.remove('show','hide');
       }
       function resetState(){
         clicked = false;
         resetPortal();
         if (navT1){ clearTimeout(navT1); navT1 = null; }
         if (navT2){ clearTimeout(navT2); navT2 = null; }
+        if (textOutT){ clearTimeout(textOutT); textOutT = null; }
       }
 
       window.addEventListener('pageshow', resetState);
@@ -226,18 +278,36 @@
 
       const nextFrame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
+      function getCSSVar(name){
+        const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return val.replace(/^["']|["']$/g,'');
+      }
+
       async function enterPortal(e){
         e.preventDefault();
         if (clicked) return;
         clicked = true;
 
+        // Sätt texten från CSS-variabeln (fallback om tom)
+        portalTextSpan.textContent = getCSSVar('--interstitial-text') || 'do you have what it takes?';
+
         resetPortal();
         await nextFrame();
 
+        // Visa överlägg + text
         fade.classList.add('fade-active');
         flash.classList.add('flash-active');
+        portalText.classList.add('show');
 
+        // Tona ut texten lite innan navigering (så det känns sekvenserat)
+        const outWhen = Math.max(0, NAV_DELAY_MS - TEXT_OUT_OFFSET);
+        textOutT = setTimeout(() => {
+          portalText.classList.add('hide'); // transition styrs i CSS
+        }, outWhen);
+
+        // Navigera när effekten är klar
         navT1 = setTimeout(() => { window.location.href = NEXT_URL; }, NAV_DELAY_MS);
+        // extra safety
         navT2 = setTimeout(() => {
           if (!location.href.endsWith(NEXT_URL)) window.location.href = NEXT_URL;
         }, NAV_DELAY_MS + 500);
