@@ -3,51 +3,48 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lvluplife – Journey</title>
+  <title>Lvluplife – Start</title>
 
   <style>
     /* =========================================================
-       (1) KONTROLLPANEL – ÄNDRA FÄRGER, TIDER, STIL HÄR
+       (1) KONTROLLPANEL – ändra stil & timing här
        ========================================================= */
     :root{
-      /* Bakgrund & text */
-      --bg: #000000;                 /* svart bakgrund så skenet syns */
-      --fg: #ffffff;                 /* vit text */
+      /* Färger & text */
+      --bg: #0a0a0a;
+      --fg: #ffffff;
       --title-glow: rgba(0,255,200,.5);
 
-      /* Curtain (vita skenet) */
-      --curtain-color: #ffffff;
-      --curtain-duration: 600ms;
-      --curtain-blur: 2px;
+      /* Knapp */
+      --btn-text: #ffffff;
+      --btn-grad-from: #00f0ff;
+      --btn-grad-to:   #0077ff;
+      --btn-radius: 12px;
+      --btn-pad-y: 18px;
+      --btn-pad-x: 52px;
+      --btn-letterspace: 2px;
+      --btn-fontsize: 1.2rem;
+      --btn-shadow: 0 0 25px rgba(0,255,255,.35);
 
-      /* Rubrik-storlekar (som index) */
+      /* Portal (ingång) */
+      --fade-duration: 0.6s;     /* bakgrundsvignette */
+      --flash-duration: 1.4s;    /* vita skenet */
+      --portal-cyan: rgba(0,255,255,.15);
+      --flash-blur-min: 6px;
+      --flash-blur-max: 16px;
+      --flash-scale-start: .25;
+      --flash-scale-end:   2.4;
+
+      /* Layout */
+      --top-space: 12vh;
       --title-size-min: 2.5rem;
       --title-size-fluid: 8vw;
       --title-size-max: 6rem;
-
-      /* Dropdown (”vita rutan”) */
-      --dd-bg: #ffffff;
-      --dd-fg: #0a0a0a;
-      --dd-border: #ffffff;
-      --dd-radius: 12px;
-      --dd-pad-y: 14px;
-      --dd-pad-x: 16px;
-      --dd-fontsize: 1rem;
-      --dd-shadow: 0 0 18px rgba(255,255,255,.12);
-
-      /* Menyn */
-      --menu-bg: #0f0f0f;
-      --menu-fg: #ffffff;
-      --menu-border: #2a2a2a;
-      --menu-hover: rgba(255,255,255,.08);
-      --menu-focus: rgba(0,255,200,.25);
-
       --max-width: 920px;
-      --gap: 28px;
     }
 
     /* =========================================================
-       (2) BASLAYOUT
+       (2) Baslayout
        ========================================================= */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
@@ -55,269 +52,70 @@
       background: var(--bg);
       color: var(--fg);
       font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
-      display:flex; align-items:flex-start; justify-content:center;
-      min-height:100svh; overflow:hidden;
-      padding: 10vh 4vw 6vh;
-    }
-    .wrap{
-      width:min(var(--max-width), 92vw);
       display:flex; flex-direction:column; align-items:center;
-      gap: var(--gap);
-      text-align:center;
-      position: relative;
-      z-index: 1; /* säkerställ över curtain när den tonat ut */
+      justify-content:flex-start; overflow:hidden;
+      padding-top: var(--top-space);
     }
+    main{ width:min(var(--max-width),92vw); text-align:center; }
 
     /* =========================================================
-       (3) RUBRIK – samma känsla som index
+       (3) Rubrik
        ========================================================= */
     h1{
       font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
+      margin-bottom: 60px;
       text-shadow: 0 0 25px var(--title-glow);
     }
 
     /* =========================================================
-       (4) DROPDOWN – ”vit ruta”
+       (4) Knapp (CSP-säker – ingen inline onclick)
        ========================================================= */
-    .chooser{ display:flex; flex-direction:column; gap:12px; align-items:center; width:100%; max-width:560px; }
-    .question{
-      color: var(--fg);
+    .start-btn{
+      display:inline-block;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      color: var(--btn-text);
+      background: linear-gradient(90deg, var(--btn-grad-from), var(--btn-grad-to));
+      border: none;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
       text-transform: uppercase;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-shadow: 0 0 16px var(--title-glow);
-      font-size: clamp(1rem, 2.4vw, 1.25rem);
+      font-weight: 700;
+      letter-spacing: var(--btn-letterspace);
+      font-size: var(--btn-fontsize);
+      box-shadow: var(--btn-shadow);
+      transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+      will-change: transform, box-shadow, filter;
+      z-index: 2; /* ovanför innehåll, under overlays (som är klick-genom) */
     }
-    .dropdown{
-      width:100%;
-      background: var(--dd-bg); color: var(--dd-fg);
-      border:2px solid var(--dd-border); border-radius: var(--dd-radius);
-      padding: var(--dd-pad-y) var(--dd-pad-x);
-      font-size: var(--dd-fontsize);
-      display:flex; align-items:center; justify-content:space-between;
-      cursor:pointer; box-shadow: var(--dd-shadow);
-      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-      outline:none; user-select:none;
-    }
-    .dropdown:hover{ transform: translateY(-1px); filter:saturate(1.02) }
-    .dropdown:active{ transform: translateY(0) scale(.99) }
-    .dropdown .label{ opacity:.8; }
-    .dropdown .value{ font-weight:700; }
-    .dropdown .chev{ margin-left:12px; opacity:.6; transition: transform .18s ease; }
-    .dropdown[aria-expanded="true"] .chev{ transform: rotate(180deg); opacity:.9; }
-
-    .menu{ position:relative; width:100%; }
-    .menu ul{
-      position:absolute; top:8px; left:0; right:0;
-      background: var(--menu-bg); color: var(--menu-fg);
-      border:1px solid var(--menu-border);
-      border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.5);
-      list-style:none; overflow:hidden; padding:6px;
-      display:none; z-index:10;
-    }
-    .menu[data-open="true"] ul{ display:block; }
-    .menu li{
-      padding:12px; border-radius:10px; display:flex; align-items:center; justify-content:space-between;
-      transition: background .15s ease, outline .15s ease; outline:0 solid transparent; cursor:pointer;
-    }
-    .menu li + li{ margin-top:4px; }
-    .menu li:hover{ background: var(--menu-hover); }
-    .menu li[aria-selected="true"]{
-      background: linear-gradient(90deg, rgba(0,255,200,.12), transparent);
-      outline:2px solid var(--menu-focus);
-    }
+    .start-btn:hover{ transform: scale(1.05); filter:saturate(1.1) }
+    .start-btn:active{ transform: scale(.98) }
 
     /* =========================================================
-       (5) CURTAIN – vita skenet som måste tona bort
+       (5) Overlays (fade + vit flash)
        ========================================================= */
-    #entryCurtain{
-      position: fixed; inset: 0;
-      background: var(--curtain-color);
-      z-index: 9999;
-      opacity: 1;
-      pointer-events: none;
-    }
-    #entryCurtain.curtain-out{
-      animation: curtainFadeOut var(--curtain-duration) cubic-bezier(.22,.61,.36,1) forwards;
-    }
-    @keyframes curtainFadeOut{
-      0%   { opacity: 1; filter: blur(var(--curtain-blur)); }
-      40%  { opacity: .6; filter: blur(calc(var(--curtain-blur) / 2)); }
-      100% { opacity: 0; filter: blur(0px); }
+    .fade-overlay, .flash-overlay{
+      position:fixed; inset:0; opacity:0; z-index:5;
+      pointer-events:none;                 /* låter klick gå igenom */
+      will-change: opacity, transform, filter;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      #entryCurtain.curtain-out{ animation-duration: 150ms; }
+    /* Cyan vignette */
+    .fade-overlay{
+      background: radial-gradient(circle at center,
+                  var(--portal-cyan),
+                  rgba(0,0,0,.9) 80%);
+      transition: opacity var(--fade-duration) ease-out;
     }
-  </style>
-</head>
-<body>
-  <!-- (6) CURTAIN: vitt sken som ”avslutar” portalen -->
-  <div id="entryCurtain" aria-hidden="true"></div>
+    .fade-active{ opacity:1 }
 
-  <!-- (7) INNEHÅLL -->
-  <main class="wrap" role="main">
-    <h1>What do you want to improve?</h1>
-
-    <section class="chooser" aria-label="Improvement category">
-      <div class="question">Choose a category</div>
-
-      <button
-        id="ddButton"
-        class="dropdown"
-        aria-haspopup="listbox"
-        aria-expanded="false"
-        aria-controls="ddMenuList"
-        type="button"
-      >
-        <span class="label">Category</span>
-        <span class="value" id="ddValue">Select…</span>
-        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
-
-      <div class="menu" id="ddMenu" data-open="false">
-        <ul id="ddMenuList" role="listbox" aria-labelledby="ddButton">
-          <li role="option" data-value="Lifestyle" aria-selected="true" tabindex="0">
-            <span>Lifestyle</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </li>
-        </ul>
-      </div>
-    </section>
-  </main>
-
-  <!-- (8) SCRIPT – curtain + dropdown, med failsafe + loggar -->
-  <script defer>
-    console.log('[journey] script start');
-
-    // 8.1 CURTAIN – tona bort skenet vid laddning (med failsafe)
-    function startCurtainFade(){
-      const curtain = document.getElementById('entryCurtain');
-      if (!curtain){ console.warn('[journey] curtain saknas'); return; }
-
-      // Trigga animationen i nästa frame
-      requestAnimationFrame(() => {
-        curtain.classList.add('curtain-out');
-        console.log('[journey] curtain-out klass satt');
-      });
-
-      // Failsafe: ta bort curtain efter 1.5s oavsett
-      setTimeout(() => {
-        if (!curtain.parentNode) return;
-        curtain.remove();
-        console.log('[journey] curtain borttagen via failsafe');
-      }, 1500);
-    }
-
-    // Kör när DOM finns (snabbare än window.load)
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('[journey] DOMContentLoaded');
-      startCurtainFade();
-    });
-
-    // Om man kommer hit via back/forward cache
-    window.addEventListener('pageshow', () => {
-      console.log('[journey] pageshow (bfcache?)');
-      // Lägg tillbaka curtain om den togs bort (vid navigation tillbaka)
-      let curtain = document.getElementById('entryCurtain');
-      if (!curtain){
-        curtain = document.createElement('div');
-        curtain.id = 'entryCurtain';
-        curtain.setAttribute('aria-hidden','true');
-        document.body.prepend(curtain);
-      }else{
-        curtain.classList.remove('curtain-out');
-      }
-      startCurtainFade();
-    });
-
-    // 8.2 DROPDOWN – öppna/stäng/välj
-    const ddButton = document.getElementById('ddButton');
-    const ddMenu   = document.getElementById('ddMenu');
-    const ddList   = document.getElementById('ddMenuList');
-    const ddValue  = document.getElementById('ddValue');
-
-    function openMenu(){
-      ddMenu.dataset.open = "true";
-      ddButton.setAttribute('aria-expanded', 'true');
-      const first = ddList.querySelector('[role="option"]');
-      if (first) first.focus();
-      document.addEventListener('click', clickAwayClose);
-      document.addEventListener('keydown', keyClose);
-    }
-    function closeMenu(){
-      ddMenu.dataset.open = "false";
-      ddButton.setAttribute('aria-expanded', 'false');
-      document.removeEventListener('click', clickAwayClose);
-      document.removeEventListener('keydown', keyClose);
-      ddButton.focus();
-    }
-    function toggleMenu(){
-      const isOpen = ddMenu.dataset.open === "true";
-      isOpen ? closeMenu() : openMenu();
-    }
-    function clickAwayClose(e){
-      if (!ddMenu.contains(e.target) && e.target !== ddButton){
-        closeMenu();
-      }
-    }
-    function keyClose(e){
-      if (e.key === 'Escape') closeMenu();
-    }
-
-    ddButton.addEventListener('click', toggleMenu);
-    ddButton.addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMenu(); }
-      if (e.key === 'ArrowDown'){ e.preventDefault(); openMenu(); }
-    });
-
-    ddList.addEventListener('click', (e)=>{
-      const li = e.target.closest('[role="option"]');
-      if (!li) return;
-      selectOption(li);
-    });
-    ddList.addEventListener('keydown', (e)=>{
-      const options = Array.from(ddList.querySelectorAll('[role="option"]'));
-      const current = document.activeElement;
-      let idx = options.indexOf(current);
-
-      if (e.key === 'ArrowDown'){ e.preventDefault(); (options[idx+1] || options[0]).focus(); }
-      if (e.key === 'ArrowUp'){ e.preventDefault(); (options[idx-1] || options[options.length-1]).focus(); }
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectOption(current); }
-      if (e.key === 'Escape'){ e.preventDefault(); closeMenu(); }
-    });
-
-    function selectOption(li){
-      ddList.querySelectorAll('[role="option"]').forEach(o => o.setAttribute('aria-selected','false'));
-      li.setAttribute('aria-selected','true');
-      const value = li.dataset.value || li.textContent.trim();
-      ddValue.textContent = value;
-      closeMenu();
-      console.log('[journey] selected:', value);
-    }
-
-    // Init: visa förvalt alternativ om markerat
-    (function initSelected(){
-      const selected = ddList.querySelector('[role="option"][aria-selected="true"]');
-      if (selected){
-        ddValue.textContent = selected.dataset.value || selected.textContent.trim();
-      }
-    })();
-  </script>
-
-  <!-- (9) Fallback om JS är avstängt -->
-  <noscript>
-    <style>#entryCurtain{ display:none !important; }</style>
-    <div style="position:fixed;bottom:1rem;left:1rem;background:#222;color:#fff;padding:.75rem 1rem;border-radius:8px">
-      JavaScript är avstängt – aktivera det för att se övergången och dropdown-menyn.
-    </div>
-  </noscript>
-</body>
-</html>
+    /* Vitt sken */
+    .flash-overlay{
+      background: radial-gradient(circle at center,
+                  rgba(255,255,255,1) 0%,
+                  rgba(255,255,255,.6) 40%,
+                  rgba(255,255,255,0) 80%);
+      transform: scale(var(--flash-scale-start));
+      filter: blur(var(--flash-blur-mi
