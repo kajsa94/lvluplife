@@ -1,17 +1,148 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LVLUPLIFE — Next</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lvluplife — Next Step</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: #ffffff; /* vit bakgrund */
+      color: #0a0a0a;
+      font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 12vh;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    main {
+      width: min(920px, 92vw);
+    }
+
+    h1 {
+      font-size: clamp(var(--title-size-min), var(--title-size-fluid), var(--title-size-max));
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: var(--title-bottom-gap);
+      color: #0a0a0a;
+      text-shadow: 0 0 25px rgba(0,255,200,.35);
+    }
+
+    /* ---------- Custom dropdown ---------- */
+    .custom-dropdown {
+      position: relative;
+      width: 280px;
+      max-width: 90%;
+      margin-top: 40px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .dropdown-selected {
+      background: linear-gradient(90deg,#00f0ff,#0077ff);
+      color: #ffffff;
+      padding: 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0,255,255,.35);
+      user-select: none;
+      position: relative;
+      transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+    }
+
+    .dropdown-selected:hover {
+      transform: scale(1.03);
+      filter: saturate(1.05);
+    }
+
+    .dropdown-selected::after {
+      content: "▼";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .dropdown-items {
+      position: absolute;
+      width: 100%;
+      background: #ffffff;
+      color: #0a0a0a;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+      margin-top: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+
+    .dropdown-items div {
+      padding: 12px 18px;
+      transition: background .2s;
+    }
+
+    .dropdown-items div:hover {
+      background: rgba(0,240,255,0.15);
+    }
+
+    /* För responsivitet */
+    @media (max-width:480px){
+      .custom-dropdown { width: 90%; }
+    }
+  </style>
 </head>
-<body class="page page--next">
-  <main class="next-wrap">
-    <h2>Welcome in ✨</h2>
-    <p>You passed through the portal.</p>
-    <a class="backlink" href="index.html">← Back to start</a>
+<body>
+  <main>
+    <h1>What do you want to improve?</h1>
+
+    <div class="custom-dropdown" id="dropdown">
+      <div class="dropdown-selected" id="selected">Select an option</div>
+      <div class="dropdown-items" id="dropdownItems">
+        <div data-value="focus">Focus</div>
+        <div data-value="productivity">Productivity</div>
+        <div data-value="creativity">Creativity</div>
+        <div data-value="health">Health</div>
+        <div data-value="skills">Skills</div>
+      </div>
+    </div>
   </main>
-  <script src="script.js" defer></script>
+
+  <script>
+    const dropdown = document.getElementById('dropdown');
+    const selected = document.getElementById('selected');
+    const items = document.getElementById('dropdownItems');
+
+    // Klick på boxen visar / döljer alternativen
+    selected.addEventListener('click', () => {
+      items.style.display = items.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Klick på ett alternativ
+    items.querySelectorAll('div').forEach(option => {
+      option.addEventListener('click', () => {
+        selected.textContent = option.textContent;
+        items.style.display = 'none';
+        // Optional: här kan du lagra värdet
+        console.log("Selected:", option.dataset.value);
+      });
+    });
+
+    // Stäng dropdown om klick utanför
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        items.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
