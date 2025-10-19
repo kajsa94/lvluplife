@@ -1,192 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LvlUpLife</title>
-  <link rel="stylesheet" href="styles.css" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lvluplife — Drömlik vit transition</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Fallback font-family i CSS används; inga externa resurser -->
+  <meta name="description" content="Demo: drömlik vit transition med veil + wash. Klicka på knappen för att spela animationen.">
   <style>
-    :root {
-      --dream-total-ms: 2600ms;
-    }
-
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle at center, #000814 0%, #001233 100%);
-      color: white;
-      font-family: "Poppins", sans-serif;
-      overflow: hidden;
-    }
-
-    .container {
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-      letter-spacing: 1px;
-    }
-
-    .divider {
-      height: 2px;
-      width: 80%;
-      background: linear-gradient(to right, #3a86ff, #4361ee);
-      margin: 0 auto 1.5rem;
-      border-radius: 2px;
-    }
-
-    button {
-      background: linear-gradient(90deg, #003566, #00509d);
-      color: white;
-      border: none;
-      padding: 1rem 2.5rem;
-      font-size: 1.1rem;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 0 12px rgba(0, 70, 160, 0.4);
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(0, 100, 255, 0.6);
-    }
-
-    /* Vita dröm-skenet */
-    .dream-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      animation: fadeOut var(--dream-total-ms) ease forwards;
-      z-index: 9999;
-      pointer-events: none;
-    }
-
-    @keyframes fadeOut {
-      0% {
-        opacity: 1;
+    /* Små extra-responsiva tweaks som kompletterar din styles.css */
+    @media (max-width: 480px){
+      :root{
+        --divider-width: 72vw;
+        --btn-pad-x: 28px;
+        --btn-pad-y: 14px;
+        --title-bottom-gap: 12px;
+        --subtext-bottom-gap: 20px;
       }
-      100% {
-        opacity: 0;
-      }
+      body{ padding-top:10vh; }
+      h1{ font-size: clamp(1.8rem, 10vw, 3.4rem); }
     }
 
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 1.4rem;
-      }
-
-      button {
-        padding: 0.9rem 2rem;
-        font-size: 1rem;
-      }
+    /* Gör divider mer responsiv på mellan-storlek */
+    @media (min-width: 480px) and (max-width: 920px){
+      :root{ --divider-width: min(420px, 76vw); }
     }
+
+    /* säkerställ att overlay är synligt för skärmläsare (men inte pointer-events) */
+    .dream-overlay[aria-hidden="false"]{ pointer-events:none; }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Are you ready?</h1>
-    <div class="divider"></div>
-    <button id="startBtn">Begin</button>
-  </div>
+  <main>
+    <!-- Huvudrubrik -->
+    <h1 id="page-title">Lvluplife</h1>
+
+    <!-- Divider -->
+    <div class="divider" role="separator" aria-hidden="true"></div>
+
+    <!-- Subtext (placerad mellan strecket och knappen enligt önskan) -->
+    <p class="subtext" id="subtext">Drömsk, vit övergång — klicka för att uppleva effekten.</p>
+
+    <!-- Startknapp -->
+    <button class="start-btn" id="startBtn" aria-describedby="hint" type="button">
+      Start
+    </button>
+
+    <!-- Hint -->
+    <p class="hint" id="hint">Tryck på mellanslag eller Enter när knappen är fokuserad.</p>
+  </main>
+
+  <!-- Dream overlay (initialt tom, fylls av JS när knappen trycks) -->
+  <div class="dream-overlay" id="dreamOverlay" aria-hidden="true"></div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const NEXT_URL = 'next.html';
-      const root = getComputedStyle(document.documentElement);
-      const TOTAL = +(root.getPropertyValue('--dream-total-ms').trim() || 2600);
+    // Enkel JS som triggar overlay-animationen och tar bort den när den är klar.
+    (function(){
+      const btn = document.getElementById('startBtn');
+      const overlay = document.getElementById('dreamOverlay');
 
-      const startBtn = document.getElementById('startBtn');
-      let clicked = false;
-      let timers = [];
-
-      const t = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
-      const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
-
-      const removeOverlays = () => {
-        document.querySelectorAll('.dream-overlay, .veil, .wash').forEach(n => {
-          try { n.remove(); } catch(e) { if (n.parentNode) n.parentNode.removeChild(n); }
-        });
-        document.querySelectorAll('.dream-overlay, .veil, .wash').forEach(n => {
-          n.style.animation = 'none';
-          n.style.transition = 'none';
-          n.style.opacity = '0';
-        });
-      };
-
-      // Direktstädning vid load
-      removeOverlays();
-
-      function makeOverlay(){
-        removeOverlays();
-        const wrap = document.createElement('div');
-        wrap.className = 'dream-overlay';
-        document.body.appendChild(wrap);
-        window.getComputedStyle(wrap).opacity; // start animation
-        return wrap;
+      // Hjälpfunktion: läs --dream-total-ms från :root (i CSS)
+      function getDreamMs(){
+        const root = getComputedStyle(document.documentElement);
+        const val = root.getPropertyValue('--dream-total-ms').trim();
+        // osäkert värde? fallback 2600
+        const ms = parseInt(val, 10);
+        return Number.isFinite(ms) ? ms : 2600;
       }
 
-      function enterDream(e){
-        e.preventDefault();
-        if (clicked) return;
-        clicked = true;
+      // Skapa overlay-elementen och lägg till dem i DOM
+      function playDream(){
+        // Om animation redan pågår, ignore
+        if (overlay.dataset.playing === 'true') return;
 
-        makeOverlay();
+        const totalMs = getDreamMs();
+        overlay.dataset.playing = 'true';
+        overlay.setAttribute('aria-hidden','false');
 
-        t(() => { window.location.href = NEXT_URL; }, TOTAL);
-        t(() => { removeOverlays(); clearAll(); }, TOTAL + 250);
+        // Skapa veil + wash (CSS-animering körs när elementen läggs till)
+        overlay.innerHTML = '<div class="veil" role="presentation"></div><div class="wash" role="presentation"></div>';
+
+        // Ta bort animationselementen efter total tid + liten buffer
+        setTimeout(() => {
+          overlay.innerHTML = '';
+          overlay.dataset.playing = 'false';
+          overlay.setAttribute('aria-hidden','true');
+        }, totalMs + 150); // buffer 150ms
       }
 
-      startBtn.addEventListener('click', enterDream);
-      startBtn.addEventListener('keydown', (e)=>{
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterDream(e); }
-      });
-
-      // Hantera BFCache och historik
-      window.addEventListener('pageshow', (ev) => {
-        clicked = false;
-        clearAll();
-        removeOverlays();
-
-        const moRoot = document.body;
-        const mo = new MutationObserver((mutations) => {
-          for (const m of mutations) {
-            m.addedNodes.forEach(n => {
-              if (n instanceof HTMLElement && (n.classList.contains('dream-overlay') || n.classList.contains('veil') || n.classList.contains('wash'))) {
-                try { n.remove(); } catch(_) { if (n.parentNode) n.parentNode.removeChild(n); }
-              } else if (n.querySelectorAll) {
-                const found = n.querySelectorAll('.dream-overlay, .veil, .wash');
-                if (found.length) found.forEach(el => { try { el.remove(); } catch(_) { if (el.parentNode) el.parentNode.removeChild(el); } });
-              }
-            });
-          }
-        });
-        mo.observe(moRoot, { childList: true, subtree: true });
-        setTimeout(() => mo.disconnect(), 1100);
-      });
-
-      window.addEventListener('pagehide', () => { removeOverlays(); clearAll(); });
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          clicked = false;
-          clearAll();
-          removeOverlays();
+      // Event listeners: klick + keyboard (mellanslag / enter)
+      btn.addEventListener('click', playDream);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+          // Förhindra default scroll vid mellanslag när knappen har fokus
+          e.preventDefault();
+          playDream();
         }
       });
-      window.addEventListener('beforeunload', () => { removeOverlays(); clearAll(); });
-    });
+
+      // Optional: låt användaren trycka "r" för replay (om de vill)
+      document.addEventListener('keydown', (e) => {
+        if ((e.key === 'r' || e.key === 'R') && document.activeElement !== null) {
+          // replay från vilken position som helst
+          playDream();
+        }
+      });
+
+      // Tillgänglighetsförbättring: fokus-styling synligt när man navigerar med keyboard
+      // (detta sker via :focus-visible i din CSS redan)
+    })();
   </script>
 </body>
 </html>
