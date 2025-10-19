@@ -1,34 +1,110 @@
-<!doctype html>
-<html lang="sv">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lvluplife – Start</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LvlUpLife</title>
+  <link rel="stylesheet" href="styles.css" />
 
-  <!-- Viktigt: din fil heter styles.css -->
-  <link rel="stylesheet" href="styles.css?v=1">
+  <style>
+    :root {
+      --dream-total-ms: 2600ms;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #000814 0%, #001233 100%);
+      color: white;
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    .divider {
+      height: 2px;
+      width: 80%;
+      background: linear-gradient(to right, #3a86ff, #4361ee);
+      margin: 0 auto 1.5rem;
+      border-radius: 2px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #003566, #00509d);
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 0 12px rgba(0, 70, 160, 0.4);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(0, 100, 255, 0.6);
+    }
+
+    /* Vita dröm-skenet */
+    .dream-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      animation: fadeOut var(--dream-total-ms) ease forwards;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      button {
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <main>
-    <!-- RUBRIK + STRECK -->
-    <h1>Lvluplife</h1>
+  <div class="container">
+    <h1>Are you ready?</h1>
     <div class="divider"></div>
-
-    <!-- SUBTEXT -->
-    <p class="subtext"></p>
-
-    <!-- KNAPP -->
-    <a id="startBtn" class="start-btn" href="next.html" role="button">Start your journey</a>
-
-    <!-- HINT (valfri – kan tas bort) -->
-    <p class="hint"></p>
-  </main>
+    <button id="startBtn">Begin</button>
+  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const NEXT_URL = 'next.html'; // ✅ ändrat från journey.html till next.html
-
-      // Läs tider från CSS-variabler
+      const NEXT_URL = 'next.html';
       const root = getComputedStyle(document.documentElement);
       const TOTAL = +(root.getPropertyValue('--dream-total-ms').trim() || 2600);
 
@@ -36,18 +112,29 @@
       let clicked = false;
       let timers = [];
 
-      function t(fn, ms){ const id = setTimeout(fn, ms); timers.push(id); return id; }
-      function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+      const t = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
+      const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+
+      const removeOverlays = () => {
+        document.querySelectorAll('.dream-overlay, .veil, .wash').forEach(n => {
+          try { n.remove(); } catch(e) { if (n.parentNode) n.parentNode.removeChild(n); }
+        });
+        document.querySelectorAll('.dream-overlay, .veil, .wash').forEach(n => {
+          n.style.animation = 'none';
+          n.style.transition = 'none';
+          n.style.opacity = '0';
+        });
+      };
+
+      // Direktstädning vid load
+      removeOverlays();
 
       function makeOverlay(){
+        removeOverlays();
         const wrap = document.createElement('div');
         wrap.className = 'dream-overlay';
-        // Endast ljus/sken – ingen text
-        wrap.innerHTML = `
-          <div class="veil"></div>
-          <div class="wash"></div>
-        `;
         document.body.appendChild(wrap);
+        window.getComputedStyle(wrap).opacity; // start animation
         return wrap;
       }
 
@@ -56,14 +143,10 @@
         if (clicked) return;
         clicked = true;
 
-        const overlay = makeOverlay();
-        // Animationerna sker via CSS keyframes automatiskt
+        makeOverlay();
 
-        // Navigera när sekvensen är klar
         t(() => { window.location.href = NEXT_URL; }, TOTAL);
-
-        // Städa lite efteråt
-        t(() => { overlay.remove(); clearAll(); }, TOTAL + 250);
+        t(() => { removeOverlays(); clearAll(); }, TOTAL + 250);
       }
 
       startBtn.addEventListener('click', enterDream);
@@ -71,7 +154,38 @@
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterDream(e); }
       });
 
-      window.addEventListener('pageshow', () => { clicked = false; clearAll(); });
+      // Hantera BFCache och historik
+      window.addEventListener('pageshow', (ev) => {
+        clicked = false;
+        clearAll();
+        removeOverlays();
+
+        const moRoot = document.body;
+        const mo = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            m.addedNodes.forEach(n => {
+              if (n instanceof HTMLElement && (n.classList.contains('dream-overlay') || n.classList.contains('veil') || n.classList.contains('wash'))) {
+                try { n.remove(); } catch(_) { if (n.parentNode) n.parentNode.removeChild(n); }
+              } else if (n.querySelectorAll) {
+                const found = n.querySelectorAll('.dream-overlay, .veil, .wash');
+                if (found.length) found.forEach(el => { try { el.remove(); } catch(_) { if (el.parentNode) el.parentNode.removeChild(el); } });
+              }
+            });
+          }
+        });
+        mo.observe(moRoot, { childList: true, subtree: true });
+        setTimeout(() => mo.disconnect(), 1100);
+      });
+
+      window.addEventListener('pagehide', () => { removeOverlays(); clearAll(); });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          clicked = false;
+          clearAll();
+          removeOverlays();
+        }
+      });
+      window.addEventListener('beforeunload', () => { removeOverlays(); clearAll(); });
     });
   </script>
 </body>
