@@ -1,0 +1,42 @@
+/* =======================================================
+   STIL FÖR START-SIDAN (start.html)
+   ======================================================= */
+:root {
+    /* Variabler för start-sidan */
+    --bg-color: #ffffff;
+    --title-color: #000000;
+    --title-font-size: 3rem;
+    --subtitle-color: #555555;
+    --subtitle-font-size: 1.5rem;
+    --font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    font-family: var(--font-family);
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    padding-top: 50px; /* flyttar titeln högst upp */
+}
+
+.title {
+    color: var(--title-color);
+    font-size: var(--title-font-size);
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0,255,255,0.7); /* glow-effekt */
+}
+
+.subtitle {
+    color: var(--subtitle-color);
+    font-size: var(--subtitle-font-size);
+    text-align: center;
+}
