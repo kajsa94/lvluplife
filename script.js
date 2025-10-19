@@ -1,24 +1,12 @@
-const PORTAL_DURATION_MS = 900;
+const startBtn = document.getElementById('startBtn');
+const overlay = document.getElementById('whiteOverlay');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const portal = document.querySelector('#portal');
-  const startBtn = document.querySelector('#startBtn');
+startBtn.addEventListener('click', () => {
+    // Visa overlay
+    overlay.style.opacity = 1;
 
-  const resetPortal = () => {
-    if (portal) portal.classList.remove('portal--open');
-    sessionStorage.removeItem('lvluplife_justNavigated');
-  };
-
-  window.addEventListener('pageshow', resetPortal);
-  resetPortal();
-
-  if (startBtn && portal) {
-    startBtn.addEventListener('click', () => {
-      sessionStorage.setItem('lvluplife_justNavigated', '1');
-      portal.classList.add('portal--open');
-      setTimeout(() => {
-        window.location.href = 'next.html';
-      }, PORTAL_DURATION_MS);
-    });
-  }
+    // Vänta lite (500ms) innan vi går till start.html
+    setTimeout(() => {
+        window.location.href = 'start.html';
+    }, 500); // matchar CSS transition
 });
