@@ -7,7 +7,24 @@
   <link rel="stylesheet" href="styles.css">
   <!-- Fallback font-family i CSS används; inga externa resurser -->
   <meta name="description" content="Demo: drömlik vit transition med veil + wash. Klicka på knappen för att spela animationen.">
+
+  <!-- ---------- Extra smoothness overrides (justera efter smak) ---------- -->
   <style>
+    /* Överstyr ett par :root-variabler för en längre, mjukare effekt */
+    :root{
+      --dream-total-ms: 3400;   /* total sekvenslängd i ms (ökad för extra slow) */
+      --veil-peak: 0.95;        /* hur ljust mitten blir */
+      --veil-blur: 34px;        /* mjukare radiale blur */
+      --veil-ease: cubic-bezier(.21,.55,.12,1);
+      --wash-start-opacity: 0.00;
+      --wash-mid-opacity: 0.60;
+      --wash-end-opacity: 1.00;
+      --wash-ease: cubic-bezier(.25,1,.32,1);
+
+      /* Liten touch för knapp-skugga så den smälter in i övergången */
+      --btn-shadow: 0 12px 40px rgba(0,120,255,.12);
+    }
+
     /* Små extra-responsiva tweaks som kompletterar din styles.css */
     @media (max-width: 480px){
       :root{
@@ -28,6 +45,12 @@
 
     /* säkerställ att overlay är synligt för skärmläsare (men inte pointer-events) */
     .dream-overlay[aria-hidden="false"]{ pointer-events:none; }
+
+    /* När overlay är aktiv, förhindra scroll (extra smoothness) */
+    body.dreaming {
+      overflow: hidden;
+      touch-action: none;
+    }
   </style>
 </head>
 <body>
@@ -54,22 +77,27 @@
   <div class="dream-overlay" id="dreamOverlay" aria-hidden="true"></div>
 
   <script>
-    // Enkel JS som triggar overlay-animationen och tar bort den när den är klar.
     (function(){
       const btn = document.getElementById('startBtn');
       const overlay = document.getElementById('dreamOverlay');
+      const page = document.documentElement; // för att lägga på 'dreaming' klass på <html>
 
       // Hjälpfunktion: läs --dream-total-ms från :root (i CSS)
       function getDreamMs(){
         const root = getComputedStyle(document.documentElement);
         const val = root.getPropertyValue('--dream-total-ms').trim();
-        // osäkert värde? fallback 2600
         const ms = parseInt(val, 10);
         return Number.isFinite(ms) ? ms : 2600;
       }
 
-      // Skapa overlay-elementen och lägg till dem i DOM
-      function playDream(){
+      // Extra hålltid efter animationen (ms) — låt vit yta vila en kort stund för filmisk känsla
+      const extraHoldMs = 300;
+
+      // Säker URL att navigera till
+      const targetUrl = 'next.html';
+
+      // Spelar upp animationen och navigerar när klar
+      function playDreamAndGo() {
         // Om animation redan pågår, ignore
         if (overlay.dataset.playing === 'true') return;
 
@@ -77,37 +105,78 @@
         overlay.dataset.playing = 'true';
         overlay.setAttribute('aria-hidden','false');
 
-        // Skapa veil + wash (CSS-animering körs när elementen läggs till)
-        overlay.innerHTML = '<div class="veil" role="presentation"></div><div class="wash" role="presentation"></div>';
+        // disable button to prevent multiple clicks + aria
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
 
-        // Ta bort animationselementen efter total tid + liten buffer
+        // Prevent scrolling / interactions under animation for smoother feeling
+        document.body.classList.add('dreaming');
+
+        // Skapa veil + wash (CSS-animering körs när elementen läggs till)
+        // Vi lägger även till lätta fade-in klasser för bättre timing
+        overlay.innerHTML = '<div class="veil" role="presentation" aria-hidden="true"></div><div class="wash" role="presentation" aria-hidden="true"></div>';
+
+        // När animationen är klar, håll kvar vit yta en stund och navigera
         setTimeout(() => {
-          overlay.innerHTML = '';
+          // valfri: behåll overlay synlig tills vi navigerar för att skapa "seamless" övergång
+          // remove playing flags and navigate
           overlay.dataset.playing = 'false';
           overlay.setAttribute('aria-hidden','true');
-        }, totalMs + 150); // buffer 150ms
+
+          // navigera till nästa sida efter en liten extra paus för filmisk effekt
+          setTimeout(() => {
+            // möjlig extra mjukhet: använd replace så att user inte kan gå tillbaka till animationen
+            window.location.href = targetUrl;
+          }, extraHoldMs);
+
+        }, totalMs);
+
+        // Safety: om något går snett, återställ efter en max tid (totalMs + 3000ms)
+        const safetyTimeout = setTimeout(() => {
+          if (overlay.dataset.playing === 'true') {
+            overlay.innerHTML = '';
+            overlay.dataset.playing = 'false';
+            overlay.setAttribute('aria-hidden','true');
+            btn.disabled = false;
+            btn.removeAttribute('aria-disabled');
+            document.body.classList.remove('dreaming');
+          }
+        }, totalMs + 3000);
+
+        // När vi navigerar bort kommer sidan ladda nästa — men vi städar lokalt också
+        // (setTimeout ovan tar hand om redirect)
       }
 
       // Event listeners: klick + keyboard (mellanslag / enter)
-      btn.addEventListener('click', playDream);
+      btn.addEventListener('click', playDreamAndGo);
       btn.addEventListener('keydown', (e) => {
         if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
-          // Förhindra default scroll vid mellanslag när knappen har fokus
-          e.preventDefault();
-          playDream();
+          e.preventDefault(); // förhindra scroll vid space
+          playDreamAndGo();
         }
       });
 
-      // Optional: låt användaren trycka "r" för replay (om de vill)
+      // Optional: låt användaren trycka "r" för replay (endast om inte spelas)
       document.addEventListener('keydown', (e) => {
-        if ((e.key === 'r' || e.key === 'R') && document.activeElement !== null) {
-          // replay från vilken position som helst
-          playDream();
+        if ((e.key === 'r' || e.key === 'R') && overlay.dataset.playing !== 'true') {
+          playDreamAndGo();
         }
       });
 
-      // Tillgänglighetsförbättring: fokus-styling synligt när man navigerar med keyboard
-      // (detta sker via :focus-visible i din CSS redan)
+      // När animationen är slut eller när overlay tas bort, återställ interaktioner
+      // Observera: vi använder en MutationObserver för att veta när overlay rensas (robust)
+      const mo = new MutationObserver(() => {
+        const playing = overlay.dataset.playing === 'true';
+        if (!playing) {
+          btn.disabled = false;
+          btn.removeAttribute('aria-disabled');
+          document.body.classList.remove('dreaming');
+        }
+      });
+      mo.observe(overlay, { childList: true, subtree: true });
+
+      // För bättre a11y: visa fokus vid keyboard navigation (du har :focus-visible i CSS)
+      // Inget mer behövs här då CSS hanterar styling.
     })();
   </script>
 </body>
