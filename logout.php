@@ -1,6 +1,6 @@
 <?php
-require __DIR__ . '/config.php';
-$_SESSION = [];
+session_start();
 session_destroy();
-header("Location: /");
-exit;
+header('Location: index.html');
+exit();
+?>
