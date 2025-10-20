@@ -1,9 +1,8 @@
 <?php
-// /web/lvluplife/auth/config.php
 $DB_HOST = "127.0.0.1";
 $DB_NAME = "lvlup";
 $DB_USER = "lvlupuser";
-$DB_PASS = "Drogtablettern!"; // byt om du ändrat
+$DB_PASS = "Drogtabletter1!"; // byt om du ändrat
 
 try {
   $pdo = new PDO(
@@ -17,5 +16,4 @@ try {
   echo "DB error: " . htmlspecialchars($e->getMessage());
   exit;
 }
-
 session_start();
