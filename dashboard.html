@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LVLUPLIFE — Dashboard</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background:#0b0f14; color:#fff; font-family:system-ui, Arial, sans-serif; }
+    .shell { max-width: 980px; margin: 0 auto; padding: 24px; }
+    .topbar { display:flex; align-items:center; gap:14px; }
+    .logo { width:36px; height:36px; border-radius:999px; background:#000; display:grid; place-items:center; font-weight:700; }
+    .logo span { font-size:14px; letter-spacing:0.5px; }
+    .brand { font-weight:700; opacity:.9; }
+    .tabs { margin:20px 0; display:flex; gap:10px; }
+    .tab-btn { background:#111827; border:1px solid #1f2937; padding:10px 14px; border-radius:10px; color:#d1d5db; cursor:pointer; }
+    .tab-btn.active { background:#0ea5e9; border-color:#0ea5e9; color:#001018; font-weight:700; }
+    .card { background:#0f172a; border:1px solid #1f2937; border-radius:14px; padding:16px; margin:12px 0; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:800px){ .grid-2 { grid-template-columns:1fr; } }
+    .form-row { display:grid; gap:8px; margin-bottom:12px; }
+    .input, .select { background:#0b1220; border:1px solid #1f2937; color:#e5e7eb; border-radius:10px; padding:10px 12px; }
+    .btn-primary { background:#0ea5e9; color:#001018; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .list { display:grid; gap:8px; }
+    .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .muted { color:#9ca3af; font-size:14px; }
+    .stat { font-size:15px; padding:10px 12px; background:#0b1220; border:1px solid #1f2937; border-radius:10px; }
+    .check { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#0b1220; border:1px solid #1f2937; border-radius:10px; }
+    .check input { width:18px; height:18px; }
+    .section { display:none; }
+    .section.active { display:block; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- Top -->
+    <div class="topbar">
+      <div class="logo"><span>Lvl</span></div>
+      <div>
+        <div class="brand">LVLUPLIFE</div>
+        <div class="muted">Plan • Track • Improve</div>
+      </div>
+      <div style="margin-left:auto">
+        <button id="logoutBtn" class="tab-btn">Log out</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="plan">PLAN</button>
+      <button class="tab-btn" data-tab="track">TRACK</button>
+      <button class="tab-btn" data-tab="improve">IMPROVE</button>
+    </div>
+
+    <!-- PLAN -->
+    <section id="plan" class="section active">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Skapa mål / vana</h3>
+          <form id="planForm">
+            <div class="form-row">
+              <label>Namn</label>
+              <input class="input" name="title" placeholder="Ex. Läsa 10 min" required>
+            </div>
+            <div class="form-row">
+              <label>Typ</label>
+              <select class="select" name="type">
+                <option value="habit">Habit</option>
+                <option value="goal">Goal</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Frekvens</label>
+              <select class="select" name="freq">
+                <option value="daily">Daily</option>
+                <option value="3x/week">3x/week</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </div>
+            <button class="btn-primary" type="submit">Lägg till</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Mina mål</h3>
+          <div id="planList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRACK -->
+    <section id="track" class="section">
+      <div class="card">
+        <h3>Dagens avprickning</h3>
+        <div id="trackToday" class="list"></div>
+        <div class="muted" style="margin-top:8px;">Bocka av varje dag du gör din vana.</div>
+      </div>
+    </section>
+
+    <!-- IMPROVE -->
+    <section id="improve" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Översikt</h3>
+          <div id="improveStats" class="list"></div>
+        </div>
+        <div class="card">
+          <h3>Streaks</h3>
+          <div id="streaks" class="list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ===== LocalStorage helpers =====
+    const LS_GOALS='lvl_goals', LS_ENTRIES='lvl_entries';
+    const read=k=>JSON.parse(localStorage.getItem(k)||'[]');
+    const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    const todayISO=()=>new Date().toISOString().slice(0,10);
+
+    // ===== Tabs =====
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
+      btn.onclick=()=>{
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const id=btn.dataset.tab;
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id==='plan') renderPlanList();
+        if(id==='track') renderTrack();
+        if(id==='improve'){ renderImprove(); renderStreaks(); }
+      };
+    });
+
+    // ===== PLAN =====
+    document.getElementById('planForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const fd=Object.fromEntries(new FormData(e.target));
+      const goals=read(LS_GOALS);
+      goals.push({ id:crypto.randomUUID(), title:fd.title.trim(), type:fd.type, freq:fd.freq, start_date:todayISO() });
+      write(LS_GOALS, goals);
+      e.target.reset();
+      renderPlanList();
+    });
+
+    function renderPlanList(){
+      const wrap=document.getElementById('planList');
+      const goals=read(LS_GOALS);
+      wrap.innerHTML = goals.length ? goals.map(g=>`
+        <div class="row">
+          <div>
+            <div><b>${g.title}</b></div>
+            <div class="muted">${g.type} • ${g.freq}</div>
+          </div>
+          <button class="tab-btn" data-del="${g.id}">Ta bort</button>
+        </div>`).join('') : '<div class="muted">Inga mål ännu.</div>';
+      wrap.querySelectorAll('[data-del]').forEach(b=>{
+        b.onclick=()=>{
+          write(LS_GOALS, read(LS_GOALS).filter(x=>x.id!==b.dataset.del));
+          write(LS_ENTRIES, read(LS_ENTRIES).filter(e=>e.goal_id!==b.dataset.del));
+          renderPlanList(); renderTrack(); renderImprove(); renderStreaks();
+        };
+      });
+    }
+    renderPlanList();
+
+    // ===== TRACK =====
+    function renderTrack(){
+      const wrap=document.getElementById('trackToday');
+      const goals=read(LS_GOALS);
+      const entries=read(LS_ENTRIES);
+      const t=todayISO();
+      const done=new Set(entries.filter(e=>e.date===t && e.value===1).map(e=>e.goal_id));
+      wrap.innerHTML = goals.length ? goals.map(g=>`
+        <label class="check">
+          <input type="checkbox" ${done.has(g.id)?'checked':''} data-id="${g.id}">
+          <span>${g.title}</span>
+        </label>`).join('') : '<div class="muted">Skapa mål under PLAN först.</div>';
+      wrap.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        cb.onchange=()=>{
+          let es=read(LS_ENTRIES).filter(e=>!(e.date===t && e.goal_id===cb.dataset.id));
+          if(cb.checked) es.push({ id:crypto.randomUUID(), user_id:'local', goal_id:cb.dataset.id, date:t, value:1 });
+          write(LS_ENTRIES, es);
+          renderImprove(); renderStreaks();
+        };
+      });
+    }
+    renderTrack();
+
+    // ===== IMPROVE =====
+    function calcStats(){
+      const goals=read(LS_GOALS);
+      const entries=read(LS_ENTRIES).filter(e=>e.value===1);
+      const byGoal=Object.fromEntries(goals.map(g=>[g.id,0]));
+      entries.forEach(e=>{ if(byGoal[e.goal_id]!==undefined) byGoal[e.goal_id]++; });
+      return goals.map(g=>({ title:g.title, count:byGoal[g.id]||0 }));
+    }
+    function renderImprove(){
+      const stats=calcStats();
+      document.getElementById('improveStats').innerHTML =
+        stats.length ? stats.map(s=>`<div class="stat">${s.title}: ${s.count} ✔️</div>`).join('') :
+        '<div class="muted">Ingen data ännu.</div>';
+    }
+    renderImprove();
+
+    function renderStreaks(){
+      const goals=read(LS_GOALS);
+      const entries=read(LS_ENTRIES).filter(e=>e.value===1);
+      const byGoal=new Map(goals.map(g=>[g.id,new Set()]));
+      entries.forEach(e=>byGoal.get(e.goal_id)?.add(e.date));
+      const dateAdd=(dStr,dlt)=>{ const d=new Date(dStr); d.setDate(d.getDate()+dlt); return d.toISOString().slice(0,10); };
+      const streakFor=(gid)=>{ let s=0, d=todayISO(); while(byGoal.get(gid).has(d)){ s++; d=dateAdd(d,-1);} return s; };
+      document.getElementById('streaks').innerHTML =
+        goals.length ? goals.map(g=>`<div class="stat">${g.title}: ${streakFor(g.id)} 🔥</div>`).join('') :
+        '<div class="muted">Lägg till mål för att se streaks.</div>';
+    }
+    renderStreaks();
+
+    // ===== Log out (placeholder) =====
+    document.getElementById('logoutBtn').onclick=()=>{ window.location.href='index.html'; };
+  </script>
+</body>
+</html>
+
