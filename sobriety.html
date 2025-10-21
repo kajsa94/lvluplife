@@ -1,0 +1,56 @@
+<section id="sobrietyPage" style="display:none;">
+  <div class="sobriety-box">
+    <h2 class="sobriety-title">Your Sobriety Journey</h2>
+    <p class="sobriety-hint">Track your progress and celebrate every day.</p>
+  </div>
+</section>
+
+/* =============================
+   ======= SOBRIETY PAGE =======
+   ============================= */
+#sobrietyPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--sobriety-bg, #000); /* du kan ändra här */
+}
+
+/* Själva vita rutan */
+.sobriety-box {
+  background: var(--sobriety-box-bg, #ffffff);
+  color: var(--sobriety-text-color, #000000);
+  border-radius: var(--sobriety-radius, 20px);
+  padding: var(--sobriety-padding, 60px 40px);
+  max-width: var(--sobriety-width, 600px);
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--sobriety-shadow,
+    0 0 40px rgba(255,255,255,0.15),
+    0 0 80px rgba(255,255,255,0.10)
+  );
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Titel */
+.sobriety-title {
+  font-size: var(--sobriety-title-size, clamp(2rem, 5vw, 3rem));
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--sobriety-title-color, #000000);
+}
+
+/* Hint-text */
+.sobriety-hint {
+  font-size: var(--sobriety-hint-size, 1rem);
+  font-style: italic;
+  color: var(--sobriety-hint-color, #000000);
+  opacity: var(--sobriety-hint-opacity, 0.85);
+  margin-top: 6px;
+}
+
+/* Enkel fade-in animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
