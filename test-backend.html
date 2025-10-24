@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>Testa backend</title>
+</head>
+<body>
+  <h1>Testa backend</h1>
+  <button id="fetchBtn">Hämta data</button>
+  <pre id="result"></pre>
+
+  <script>
+    document.getElementById("fetchBtn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://192.168.0.40:5050/api/test");
+        const data = await res.json();
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("result").textContent = "Kunde inte hämta data: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
